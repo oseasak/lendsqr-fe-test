@@ -76,6 +76,13 @@ $page-pad: 64px;
   text-align: left;
 }
 
+.errorMsg {
+  color: #dc2626; /* red-600 */
+  font-size: 13px;
+  margin-top: 8px;
+  margin-bottom: 6px;
+}
+
 /* form */
 .form {
   display: flex;

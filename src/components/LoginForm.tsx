@@ -2,22 +2,61 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import styles from '../styles/Login.module.scss';
 
-export default function LoginForm() {
+export default function LoginForm(): React.FC {
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [show, setShow] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const validate = (): boolean => {
+    if (!email || !password) {
+      setError('Please enter both email and password.');
+      return false;
+    }
+    const re = /\S+@\S+\.\S+/;
+    if (!re.test(email)) {
+      setError('Enter a valid email address.');
+      return false;
+    }
+    setError(null);
+    return true;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: replace with real auth call
-    console.log('Login attempt', { email, password });
-    alert(`Logging in as ${email}`);
+    if (!validate()) return;
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      // === Replace this block with a real API call ===
+      // Example:
+      // const res = await fetch('/api/login', {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify({ email, password }),
+      // });
+      // if (!res.ok) throw new Error('Invalid credentials');
+      // =================================================
+
+      // For now we simulate success and route immediately.
+      router.push('/dashboard'); // client-side navigation
+    } catch (err) {
+      console.error(err);
+      setError('Login failed. Please check your credentials and try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <form className={styles.form} onSubmit={handleSubmit}>
+    <form className={styles.form} onSubmit={handleSubmit} noValidate>
       <input
         className={styles.input}
         placeholder="Email"
@@ -25,6 +64,8 @@ export default function LoginForm() {
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         required
+        disabled={loading}
+        aria-label="Email"
       />
 
       <div className={styles.passwordRow}>
@@ -35,6 +76,8 @@ export default function LoginForm() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
+          disabled={loading}
+          aria-label="Password"
         />
         <button
           type="button"
@@ -50,8 +93,15 @@ export default function LoginForm() {
         FORGOT PASSWORD?
       </a>
 
-      <button className={styles.loginBtn} type="submit">
-        LOG IN
+      {error && <div className={styles.errorMsg} role="alert">{error}</div>}
+
+      <button
+        className={styles.loginBtn}
+        type="submit"
+        disabled={loading}
+        aria-disabled={loading}
+      >
+        {loading ? 'LOGGING IN…' : 'LOG IN'}
       </button>
     </form>
   );
