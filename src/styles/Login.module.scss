@@ -1,0 +1,153 @@
+/* styles/Login.module.scss */
+
+$teal: #2ac7bf;
+$muted: #64748b;
+$input-border: #e6eef0;
+$page-pad: 64px;
+
+.loginContainer {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  height: 100vh;
+  min-height: 640px;
+}
+
+/* LEFT */
+.left {
+  display: flex;
+  flex-direction: column;
+  padding: $page-pad;
+  justify-content: flex-start;
+  align-items: flex-start;
+  background: #ffffff;
+}
+
+.logo {
+  width: 160px;
+  height: auto;
+  margin-bottom: 40px;
+}
+
+.illustrationWrap {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 12vh;
+}
+.illustration {
+  max-width: 540px;
+  width: 100%;
+  height: auto;
+}
+
+/* RIGHT */
+.right {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+}
+
+/* Card: text align left now */
+.card {
+  width: 704px;
+  height: 900px;
+  padding: 120px 90px 90px;
+  border-radius: 10px;
+  position: relative;
+  text-align: left;
+  background: #ffffff;
+}
+
+/* titles: they will be left aligned inside the card */
+.title {
+  margin-top: 24px;
+  margin-bottom: 8px;
+  font-size: 28px;
+  font-weight: 700;
+  color: #213F7D;
+  text-align: left;
+}
+.subtitle {
+  margin-bottom: 24px;
+  color: $muted;
+  font-size: 14px;
+  text-align: left;
+}
+
+/* form */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 6px;
+}
+
+/* INPUTS: taller and reserve right padding for SHOW/HIDE */
+.input {
+  height: 56px;              /* <-- increased height */
+  border-radius: 8px;
+  border: 1px solid $input-border;
+  padding: 0 20px;
+  padding-right: 88px;       /* <-- reserve space for button inside input */
+  font-size: 14px;
+  outline: none;
+  transition: box-shadow .12s, border-color .12s;
+  display: block;
+  width: 100%;
+  background: #fff;
+}
+.input:focus {
+  box-shadow: 0 0 0 4px rgba(42,199,191,0.08);
+  border-color: $teal;
+}
+
+/* password row (relative to hold absolute SHOW/HIDE) */
+.passwordRow {
+  position: relative;
+}
+
+/* SHOW/HIDE inside the field, vertically centered */
+.showBtn {
+  position: absolute;
+  right: 12px;                /* sits inside the input right edge */
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  font-size: 13px;
+  font-weight: 700;
+  color: $teal;
+  cursor: pointer;
+  padding: 6px 8px;
+  line-height: 1;
+}
+
+/* forgot text */
+.forgot {
+  align-self: flex-start;
+  margin-top: 2px;
+  font-weight: 600;
+  font-size: 13px;
+  color: $teal;
+}
+
+/* submit button matches input height for visual balance */
+.loginBtn {
+  height: 56px;
+  border-radius: 8px;
+  border: none;
+  background: $teal;
+  color: #fff;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  cursor: pointer;
+}
+
+/* responsive */
+@media (max-width: 900px) {
+  .loginContainer { grid-template-columns: 1fr; }
+  .left { display: none; }
+  .card { margin: 36px auto; }
+}
