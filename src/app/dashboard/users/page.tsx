@@ -1,16 +1,15 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { MoreVertical, ChevronLeft, ChevronRight, Loader2, Funnel } from "lucide-react";
+  MoreVertical,
+  ChevronLeft,
+  ChevronRight,
+  Loader2,
+} from "lucide-react";
+import FilterPanel, { FilterableUsersTable, Filters as FilterValues } from "@/components/FilterPanel";
+import StatsGrid from "@/components/StatsGrid"; // 👈 import new component
 
 type ApiUser = {
   organization: string;
@@ -23,20 +22,32 @@ type ApiUser = {
 
 type UserRow = ApiUser & { id: number };
 
+const statusBadge = (status: UserRow["status"]) => {
+  if (status === "active")
+    return "px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800";
+  if (status === "inactive")
+    return "px-2 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800";
+  return "px-2 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800";
+};
+
 export default function UsersPage() {
   const [users, setUsers] = useState<UserRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  // filters + pagination state
+
   const [orgFilter, setOrgFilter] = useState("");
   const [usernameFilter, setUsernameFilter] = useState("");
   const [emailFilter, setEmailFilter] = useState("");
   const [phoneFilter, setPhoneFilter] = useState("");
+  const [dateFilter, setDateFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState<number>(10);
 
-  // fetch users
+  const [filterPanelOpen, setFilterPanelOpen] = useState(false);
+  const [filterAnchorRect, setFilterAnchorRect] = useState<DOMRect | null>(null);
+  const [filterFocus, setFilterFocus] = useState<keyof FilterValues | null>(null);
+
   useEffect(() => {
     let cancelled = false;
     const fetchUsers = async () => {
@@ -49,7 +60,8 @@ export default function UsersPage() {
         const mapped: UserRow[] = data.map((u, i) => ({ id: i + 1, ...u }));
         if (!cancelled) setUsers(mapped);
       } catch (err) {
-        if (!cancelled) setError(err instanceof Error ? err.message : "An error occurred");
+        if (!cancelled)
+          setError(err instanceof Error ? err.message : "An error occurred");
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -60,7 +72,11 @@ export default function UsersPage() {
     };
   }, []);
 
-  // stats (top cards)
+  const uniqueOrgs = useMemo(() => {
+    const set = new Set(users.map((u) => u.organization).filter(Boolean));
+    return Array.from(set).sort();
+  }, [users]);
+
   const stats = useMemo(() => {
     const total = users.length;
     const active = users.filter((u) => u.status === "active").length;
@@ -69,17 +85,21 @@ export default function UsersPage() {
     return { total, active, withLoans, withSavings };
   }, [users]);
 
-  // filtering
   const filtered = useMemo(() => {
     return users.filter((u) => {
       if (statusFilter !== "all" && u.status !== statusFilter) return false;
-      if (orgFilter && !u.organization.toLowerCase().includes(orgFilter.toLowerCase())) return false;
-      if (usernameFilter && !u.username.toLowerCase().includes(usernameFilter.toLowerCase())) return false;
-      if (emailFilter && !u.email.toLowerCase().includes(emailFilter.toLowerCase())) return false;
-      if (phoneFilter && !u.phone.toLowerCase().includes(phoneFilter.toLowerCase())) return false;
+      if (orgFilter && !u.organization.toLowerCase().includes(orgFilter.toLowerCase()))
+        return false;
+      if (usernameFilter && !u.username.toLowerCase().includes(usernameFilter.toLowerCase()))
+        return false;
+      if (emailFilter && !u.email.toLowerCase().includes(emailFilter.toLowerCase()))
+        return false;
+      if (phoneFilter && !u.phone.toLowerCase().includes(phoneFilter.toLowerCase()))
+        return false;
+      if (dateFilter && u.date_joined !== dateFilter) return false;
       return true;
     });
-  }, [users, orgFilter, usernameFilter, emailFilter, phoneFilter, statusFilter]);
+  }, [users, orgFilter, usernameFilter, emailFilter, phoneFilter, statusFilter, dateFilter]);
 
   const total = filtered.length;
   const totalPages = Math.max(1, Math.ceil(total / perPage));
@@ -94,7 +114,24 @@ export default function UsersPage() {
   const handleSaveAndNavigate = (user: UserRow) => {
     try {
       localStorage.setItem(`user-${user.id}`, JSON.stringify(user));
-    } catch {}
+    } catch {
+      // noop
+    }
+  };
+
+  const handleFunnelClick = (e: React.MouseEvent<HTMLElement>, field?: keyof FilterValues | null) => {
+    e.stopPropagation();
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+
+    if (filterPanelOpen && filterFocus === field) {
+      setFilterPanelOpen(false);
+      setFilterFocus(null);
+      return;
+    }
+
+    setFilterAnchorRect(rect);
+    setFilterFocus(field ?? null);
+    setFilterPanelOpen(true);
   };
 
   if (loading) {
@@ -108,178 +145,109 @@ export default function UsersPage() {
 
   if (error) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh] text-red-500">
-        Error: {error}
-      </div>
+      <div className="flex items-center justify-center min-h-[60vh] text-red-500">Error: {error}</div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-6">
-      {/* Page title */}
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       <div className="mb-4">
-        <h2 className="text-lg text-slate-700 font-medium">Users</h2>
+        <h2 className="text-base sm:text-lg text-slate-700 font-medium">Users</h2>
       </div>
-      {/* Top stat cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white rounded-lg p-4 shadow-sm border">
-          <div className="text-xs text-slate-500">USERS</div>
-          <div className="mt-2 text-2xl font-semibold text-slate-800">{stats.total.toLocaleString()}</div>
-        </div>
-        <div className="bg-white rounded-lg p-4 shadow-sm border">
-          <div className="text-xs text-slate-500">ACTIVE USERS</div>
-          <div className="mt-2 text-2xl font-semibold text-slate-800">{stats.active.toLocaleString()}</div>
-        </div>
-        <div className="bg-white rounded-lg p-4 shadow-sm border">
-          <div className="text-xs text-slate-500">USERS WITH LOANS</div>
-          <div className="mt-2 text-2xl font-semibold text-slate-800">{stats.withLoans.toLocaleString()}</div>
-        </div>
-        <div className="bg-white rounded-lg p-4 shadow-sm border">
-          <div className="text-xs text-slate-500">USERS WITH SAVINGS</div>
-          <div className="mt-2 text-2xl font-semibold text-slate-800">{stats.withSavings.toLocaleString()}</div>
-        </div>
+
+      {/* ✅ Replace inline grid with component */}
+      <StatsGrid stats={stats} />
+
+      <FilterableUsersTable
+        visible={visible}
+        statusBadge={statusBadge}
+        onSaveAndNavigate={handleSaveAndNavigate}
+        onFunnelClick={handleFunnelClick}
+      />
+
+      <div className="md:hidden space-y-3">
+        {visible.map((user) => (
+          <article key={user.id} className="bg-white p-4 rounded-lg border shadow-sm">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <div className="text-xs text-slate-500">ORGANIZATION</div>
+                <div className="text-sm font-medium text-slate-800 truncate">{user.organization}</div>
+              </div>
+              <div>
+                <button
+                  aria-label={`Actions for ${user.username}`}
+                  className="p-1 rounded hover:bg-slate-50"
+                  onClick={() => alert(`Actions for ${user.username}`)}
+                >
+                  <MoreVertical className="h-4 w-4 text-slate-500" />
+                </button>
+              </div>
+            </div>
+
+            <div className="mt-3 grid grid-cols-2 gap-2 text-sm text-slate-600">
+              <div>
+                <div className="text-xs text-slate-500">USERNAME</div>
+                <Link
+                  href={`/dashboard/users/${user.id}`}
+                  onClick={() => handleSaveAndNavigate(user)}
+                  className="text-sky-600 hover:underline text-sm font-medium truncate"
+                >
+                  {user.username}
+                </Link>
+              </div>
+
+              <div>
+                <div className="text-xs text-slate-500">PHONE</div>
+                <div className="text-sm text-slate-600 whitespace-nowrap truncate">{user.phone}</div>
+              </div>
+
+              <div className="col-span-2">
+                <div className="text-xs text-slate-500">EMAIL</div>
+                <div className="text-sm text-slate-600 truncate">{user.email}</div>
+              </div>
+            </div>
+
+            <div className="mt-3 flex items-center justify-between">
+              <div className={statusBadge(user.status)}>{user.status}</div>
+              <div className="text-xs text-slate-500">{user.date_joined}</div>
+            </div>
+          </article>
+        ))}
       </div>
-      {/* table (scrollable horizontally on small screens) */}
-      <div className="overflow-x-auto">
-        <div className="min-w-[920px]">
-          <Table>
-            <TableHeader>
-              <TableRow className="bg-gray-50">
-                <TableHead className="text-left text-xs font-semibold text-slate-600 py-2 px-4">
-                  <div className="flex items-center">
-                    <span>ORGANIZATION</span>
-                    <Funnel
-                      className="w-4 h-4 ml-1 cursor-pointer text-gray-500 hover:text-gray-700"
-                      aria-label="Filter Organization"
-                    />
-                  </div>
-                </TableHead>
-                <TableHead className="text-left text-xs font-semibold text-slate-600 py-2 px-4">
-                  <div className="flex items-center">
-                    <span>USERNAME</span>
-                    <Funnel
-                      className="w-4 h-4 ml-1 cursor-pointer text-gray-500 hover:text-gray-700"
-                      aria-label="Filter Username"
-                    />
-                  </div>
-                </TableHead>
-                <TableHead className="text-left text-xs font-semibold text-slate-600 py-2 px-4">
-                  <div className="flex items-center">
-                    <span>EMAIL</span>
-                    <Funnel
-                      className="w-4 h-4 ml-1 cursor-pointer text-gray-500 hover:text-gray-700"
-                      aria-label="Filter Email"
-                    />
-                  </div>
-                </TableHead>
-                <TableHead className="text-left text-xs font-semibold text-slate-600 py-2 px-4">
-                  <div className="flex items-center">
-                    <span>PHONE NUMBER</span>
-                    <Funnel
-                      className="w-4 h-4 ml-1 cursor-pointer text-gray-500 hover:text-gray-700"
-                      aria-label="Filter Phone Number"
-                    />
-                  </div>
-                </TableHead>
-                <TableHead className="text-left text-xs font-semibold text-slate-600 py-2 px-4">
-                  <div className="flex items-center">
-                    <span>DATE JOINED</span>
-                    <Funnel
-                      className="w-4 h-4 ml-1 cursor-pointer text-gray-500 hover:text-gray-700"
-                      aria-label="Filter Date Joined"
-                    />
-                  </div>
-                </TableHead>
-                <TableHead className="text-left text-xs font-semibold text-slate-600 py-2 px-4">
-                  <div className="flex items-center">
-                    <span>STATUS</span>
-                    <Funnel
-                      className="w-4 h-4 ml-1 cursor-pointer text-gray-500 hover:text-gray-700"
-                      aria-label="Filter Status"
-                    />
-                  </div>
-                </TableHead>
-                <TableHead className="text-left text-xs font-semibold text-slate-600 py-2 px-4">ACTIONS</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {visible.map((user) => (
-                <TableRow key={user.id} className="hover:bg-gray-50 transition-colors">
-                  <TableCell className="py-3 px-4 text-sm text-slate-700">{user.organization}</TableCell>
-                  <TableCell className="py-3 px-4">
-                    <Link
-                      href={`/dashboard/users/${user.id}`}
-                      onClick={() => handleSaveAndNavigate(user)}
-                      className="text-sky-600 hover:underline text-sm font-medium"
-                    >
-                      {user.username}
-                    </Link>
-                  </TableCell>
-                  <TableCell className="py-3 px-4 text-sm text-slate-600">{user.email}</TableCell>
-                  <TableCell className="py-3 px-4 text-sm text-slate-600 whitespace-nowrap">{user.phone}</TableCell>
-                  <TableCell className="py-3 px-4 text-sm text-slate-600">{user.date_joined}</TableCell>
-                  <TableCell className="py-3 px-4">
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                        user.status === "active"
-                          ? "bg-green-100 text-green-800"
-                          : user.status === "inactive"
-                          ? "bg-red-100 text-red-800"
-                          : "bg-yellow-100 text-yellow-800"
-                      }`}
-                    >
-                      {user.status}
-                    </span>
-                  </TableCell>
-                  <TableCell className="py-3 px-4">
-                    <button
-                      aria-label="Actions"
-                      className="p-2 rounded hover:bg-slate-50"
-                      title="More actions"
-                      onClick={() => {
-                        alert(`Actions for ${user.username}`);
-                      }}
-                    >
-                      <MoreVertical className="h-4 w-4 text-slate-500" />
-                    </button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-      </div>
-      {/* footer / pagination */}
-      <div className="px-5 py-3 border-t">
+
+      <div className="px-2 sm:px-5 py-3 border-t mt-4">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div className="text-sm text-slate-600">
-            Showing <span className="font-medium">{start}</span> to <span className="font-medium">{end}</span> of{" "}
+            Showing <span className="font-medium">{start}</span> to <span className="font-medium">{end}</span> of {" "}
             <span className="font-medium">{total}</span>
           </div>
           <div className="flex items-center gap-3">
-            <div className="hidden sm:flex items-center gap-2 text-sm text-slate-600">
-              <div>Rows per page</div>
+            <div className="flex items-center gap-2 text-sm text-slate-600">
+              <div className="hidden sm:block">Rows per page</div>
               <select
                 value={perPage}
                 onChange={(e) => {
                   setPerPage(Number(e.target.value));
                   setPage(1);
                 }}
-                className="p-1 border rounded text-sm"
+                className="p-1 border rounded text-sm w-20"
               >
                 <option value={10}>10</option>
                 <option value={20}>20</option>
                 <option value={50}>50</option>
               </select>
             </div>
+
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1}
                 className="p-2 rounded disabled:opacity-50"
+                aria-label="Previous page"
               >
                 <ChevronLeft className="h-4 w-4" />
               </button>
+
               <div className="hidden sm:flex items-center gap-1">
                 {Array.from({ length: Math.min(totalPages, 7) }).map((_, idx) => {
                   const num = idx + 1;
@@ -295,10 +263,12 @@ export default function UsersPage() {
                 })}
                 {totalPages > 7 && <span className="px-2 text-sm text-slate-400">…</span>}
               </div>
+
               <button
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages}
                 className="p-2 rounded disabled:opacity-50"
+                aria-label="Next page"
               >
                 <ChevronRight className="h-4 w-4" />
               </button>
@@ -306,6 +276,42 @@ export default function UsersPage() {
           </div>
         </div>
       </div>
+
+      <FilterPanel
+        open={filterPanelOpen}
+        anchorRect={filterAnchorRect}
+        focusField={filterFocus}
+        initial={{
+          organization: orgFilter || "",
+          username: usernameFilter || "",
+          email: emailFilter || "",
+          date: dateFilter || "",
+          phone: phoneFilter || "",
+          status: statusFilter !== "all" ? statusFilter : "",
+        }}
+        organizations={uniqueOrgs}
+        onApply={(f: FilterValues) => {
+          setOrgFilter(f.organization);
+          setUsernameFilter(f.username);
+          setEmailFilter(f.email);
+          setPhoneFilter(f.phone);
+          setDateFilter(f.date);
+          setStatusFilter(f.status || "all");
+          setPage(1);
+          setFilterPanelOpen(false);
+        }}
+        onReset={() => {
+          setOrgFilter("");
+          setUsernameFilter("");
+          setEmailFilter("");
+          setPhoneFilter("");
+          setDateFilter("");
+          setStatusFilter("all");
+          setPage(1);
+          setFilterPanelOpen(false);
+        }}
+        onClose={() => setFilterPanelOpen(false)}
+      />
     </div>
   );
 }
