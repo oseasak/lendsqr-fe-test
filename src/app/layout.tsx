@@ -1,10 +1,9 @@
-import '../styles/globals.scss';
-import type { ReactNode } from 'react';
+import '@/styles/tailwind.css';
+import '@/styles/globals.css';
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <head />
       <body>{children}</body>
     </html>
   );
