@@ -1,6 +1,5 @@
 // src/components/FilterPanel.tsx
 "use client";
-
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
@@ -12,7 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { MoreVertical, Funnel } from "lucide-react";
+import { MoreVertical, Funnel, Eye, UserX, UserCheck } from "lucide-react";
 
 export type Filters = {
   organization: string;
@@ -48,7 +47,6 @@ export default function FilterPanel({
   onClose,
 }: PanelProps) {
   const panelRef = useRef<HTMLDivElement | null>(null);
-
   const [filters, setFilters] = useState<Filters>({
     organization: initial.organization ?? "",
     username: initial.username ?? "",
@@ -106,14 +104,12 @@ export default function FilterPanel({
     const maxLeft = (window.innerWidth ?? 1024) - width - 8 + scrollX;
     if (left < minLeft) left = minLeft;
     if (left > maxLeft) left = maxLeft;
-
     const top = anchorRect.bottom + gap + scrollY;
     const panelHeightEstimate = 360;
     let finalTop = top;
     if (finalTop + panelHeightEstimate > (window.innerHeight + scrollY)) {
       finalTop = Math.max(anchorRect.top - panelHeightEstimate - gap + scrollY, 8 + scrollY);
     }
-
     return {
       position: "absolute",
       left: `${Math.round(left)}px`,
@@ -155,7 +151,6 @@ export default function FilterPanel({
         className="bg-white border rounded-lg shadow-lg p-4 overflow-auto"
       >
         <h3 className="text-sm font-semibold text-slate-700 mb-3">Filter users</h3>
-
         <div className="space-y-3">
           {/* Organization */}
           <div>
@@ -174,7 +169,6 @@ export default function FilterPanel({
               ))}
             </select>
           </div>
-
           {/* Username */}
           <div>
             <label className="text-xs text-slate-500 mb-1 block">Username</label>
@@ -186,7 +180,6 @@ export default function FilterPanel({
               className="w-full h-10 rounded-md border px-3 text-sm"
             />
           </div>
-
           {/* Email */}
           <div>
             <label className="text-xs text-slate-500 mb-1 block">Email</label>
@@ -198,7 +191,6 @@ export default function FilterPanel({
               className="w-full h-10 rounded-md border px-3 text-sm"
             />
           </div>
-
           {/* Date */}
           <div>
             <label className="text-xs text-slate-500 mb-1 block">Date</label>
@@ -210,7 +202,6 @@ export default function FilterPanel({
               className="w-full h-10 rounded-md border px-3 text-sm"
             />
           </div>
-
           {/* Phone */}
           <div>
             <label className="text-xs text-slate-500 mb-1 block">Phone Number</label>
@@ -222,7 +213,6 @@ export default function FilterPanel({
               className="w-full h-10 rounded-md border px-3 text-sm"
             />
           </div>
-
           {/* Status */}
           <div>
             <label className="text-xs text-slate-500 mb-1 block">Status</label>
@@ -239,7 +229,6 @@ export default function FilterPanel({
             </select>
           </div>
         </div>
-
         {/* actions */}
         <div className="mt-4 flex items-center justify-between gap-2">
           <button
@@ -259,7 +248,6 @@ export default function FilterPanel({
           >
             Reset
           </button>
-
           <div className="ml-auto">
             <button
               type="button"
@@ -302,8 +290,22 @@ export function FilterableUsersTable({
   onSaveAndNavigate,
   onFunnelClick,
 }: FilterableUsersTableProps) {
+  const [actionsOpen, setActionsOpen] = useState<number | null>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
+  // Handle outside clicks to close dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node) && actionsOpen !== null) {
+        setActionsOpen(null);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [actionsOpen]);
+
   return (
-    <div className="hidden md:block overflow-x-auto">
+    <div className="hidden md:block overflow-x-auto" ref={wrapperRef}>
       <div className="min-w-[720px] md:min-w-[920px]">
         <Table>
           <TableHeader>
@@ -321,7 +323,6 @@ export function FilterableUsersTable({
                   </button>
                 </div>
               </TableHead>
-
               <TableHead className="text-left text-xs font-semibold text-slate-600 py-2 px-4">
                 <div className="flex items-center gap-2">
                   <span className="whitespace-nowrap">USERNAME</span>
@@ -335,7 +336,6 @@ export function FilterableUsersTable({
                   </button>
                 </div>
               </TableHead>
-
               <TableHead className="text-left text-xs font-semibold text-slate-600 py-2 px-4">
                 <div className="flex items-center gap-2">
                   <span className="whitespace-nowrap">EMAIL</span>
@@ -349,7 +349,6 @@ export function FilterableUsersTable({
                   </button>
                 </div>
               </TableHead>
-
               <TableHead className="text-left text-xs font-semibold text-slate-600 py-2 px-4">
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-semibold text-slate-600 whitespace-nowrap">PHONE NUMBER</span>
@@ -363,7 +362,6 @@ export function FilterableUsersTable({
                   </button>
                 </div>
               </TableHead>
-
               <TableHead className="text-left text-xs font-semibold text-slate-600 py-2 px-4">
                 <div className="flex items-center gap-2">
                   <span className="whitespace-nowrap">DATE JOINED</span>
@@ -377,7 +375,6 @@ export function FilterableUsersTable({
                   </button>
                 </div>
               </TableHead>
-
               <TableHead className="text-left text-xs font-semibold text-slate-600 py-2 px-4">
                 <div className="flex items-center gap-2">
                   <span className="whitespace-nowrap">STATUS</span>
@@ -391,11 +388,11 @@ export function FilterableUsersTable({
                   </button>
                 </div>
               </TableHead>
-
-              <TableHead className="text-left text-xs font-semibold text-slate-600 py-2 px-4">ACTIONS</TableHead>
+              <TableHead className="text-left text-xs font-semibold text-slate-600 py-2 px-4">
+                <span className="whitespace-nowrap">Actions</span>
+              </TableHead>
             </TableRow>
           </TableHeader>
-
           <TableBody>
             {visible.map((user) => (
               <TableRow key={user.id} className="hover:bg-gray-50 transition-colors">
@@ -416,14 +413,53 @@ export function FilterableUsersTable({
                   <span className={statusBadge(user.status)}>{user.status}</span>
                 </TableCell>
                 <TableCell className="py-3 px-4">
-                  <button
-                    aria-label={`Actions for ${user.username}`}
-                    className="p-2 rounded hover:bg-slate-50"
-                    title="More actions"
-                    onClick={() => alert(`Actions for ${user.username}`)}
-                  >
-                    <MoreVertical className="h-4 w-4 text-slate-500" />
-                  </button>
+                  <div className="relative">
+                    <button
+                      aria-label={`Actions for ${user.username}`}
+                      className="p-2 rounded hover:bg-slate-50"
+                      title="More actions"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setActionsOpen(actionsOpen === user.id ? null : user.id);
+                      }}
+                    >
+                      <MoreVertical className="h-4 w-4 text-slate-500" />
+                    </button>
+                    {actionsOpen === user.id && (
+                      <div
+                        className="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg z-50"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <button
+                          onClick={() => {
+                            setActionsOpen(null);
+                            // Add navigation or other logic here, e.g., onSaveAndNavigate(user);
+                          }}
+                          className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        >
+                          <Eye className="h-4 w-4 mr-2" /> View Details
+                        </button>
+                        <button
+                          onClick={() => {
+                            setActionsOpen(null);
+                            // Add blacklist logic here
+                          }}
+                          className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        >
+                          <UserX className="h-4 w-4 mr-2" /> Blacklist User
+                        </button>
+                        <button
+                          onClick={() => {
+                            setActionsOpen(null);
+                            // Add activate logic here
+                          }}
+                          className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        >
+                          <UserCheck className="h-4 w-4 mr-2" /> Activate User
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </TableCell>
               </TableRow>
             ))}

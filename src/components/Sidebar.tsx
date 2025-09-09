@@ -88,7 +88,7 @@ export default function Sidebar() {
     <>
       {/* Desktop Sidebar */}
       <aside
-        className={`hidden md:flex flex-col bg-white border-r h-screen transition-all duration-200 ease-in-out
+        className={`hidden md:flex flex-col bg-white border-r min-h-screen transition-all duration-200 ease-in-out
           ${collapsed ? "w-18" : "w-60"} shrink-0`}
         aria-label="Sidebar"
       >
