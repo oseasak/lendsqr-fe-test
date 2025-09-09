@@ -1,7 +1,10 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { LayoutDashboard, Users, Shield, CreditCard, Cpu, PiggyBank, Package, Receipt, Activity, Hammer, FileText, Settings, LogOut, Menu } from "lucide-react";
+import { 
+  LayoutDashboard, Users, User, Shield, CreditCard, Cpu, PiggyBank, Package, 
+  Receipt, Activity, Hammer, FileText, Settings, LogOut, Menu 
+} from "lucide-react";
 import Image from "next/image";
 
 type Item = {

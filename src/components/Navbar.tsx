@@ -4,6 +4,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { SearchBar } from "@/components/Searchbar";
 import {
   NavigationMenu,
   NavigationMenuItem,
@@ -54,6 +55,11 @@ export const Navbar: React.FC = () => {
               />
             </Link>
           </div>
+          
+              <div className="flex items-center space-x-4">
+                <SearchBar /> {/* Add SearchBar here */}
+                {/* <ThemeToggle /> */}
+              </div>
 
           {/* Right (desktop): Docs · Bell · Avatar + Name */}
           <div className="hidden md:flex items-center space-x-6">
@@ -121,13 +127,13 @@ export const Navbar: React.FC = () => {
 
           {/* Mobile / small screens: avatar (name hidden) + hamburger */}
           <div className="flex items-center md:hidden gap-3">
-                    <Image
-                      src="/images/Avatar.png"
-                      alt="User Avatar"
-                      width={40}
-                      height={40}
-                      className="rounded-full"
-                    />
+            <Image
+              src="/images/Avatar.png"
+              alt="User Avatar"
+              width={40}
+              height={40}
+              className="rounded-full"
+            />
             {/* Hamburger */}
             <button
               type="button"
