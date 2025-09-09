@@ -1,4 +1,3 @@
-// src/app/dashboard/users/page.tsx
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
@@ -11,17 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import {
-  Loader2,
-  Plus,
-  MoreVertical,
-  Search,
-  Calendar,
-  ChevronLeft,
-  ChevronRight,
-  ChevronDown,
-} from "lucide-react";
+import { MoreVertical, ChevronLeft, ChevronRight, Loader2, Funnel } from "lucide-react";
 
 type ApiUser = {
   organization: string;
@@ -38,14 +27,12 @@ export default function UsersPage() {
   const [users, setUsers] = useState<UserRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
   // filters + pagination state
   const [orgFilter, setOrgFilter] = useState("");
   const [usernameFilter, setUsernameFilter] = useState("");
   const [emailFilter, setEmailFilter] = useState("");
   const [phoneFilter, setPhoneFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
-
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState<number>(10);
 
@@ -107,7 +94,7 @@ export default function UsersPage() {
   const handleSaveAndNavigate = (user: UserRow) => {
     try {
       localStorage.setItem(`user-${user.id}`, JSON.stringify(user));
-    } catch { }
+    } catch {}
   };
 
   if (loading) {
@@ -133,51 +120,92 @@ export default function UsersPage() {
       <div className="mb-4">
         <h2 className="text-lg text-slate-700 font-medium">Users</h2>
       </div>
-
       {/* Top stat cards */}
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-6">
         <div className="bg-white rounded-lg p-4 shadow-sm border">
           <div className="text-xs text-slate-500">USERS</div>
           <div className="mt-2 text-2xl font-semibold text-slate-800">{stats.total.toLocaleString()}</div>
         </div>
-
         <div className="bg-white rounded-lg p-4 shadow-sm border">
           <div className="text-xs text-slate-500">ACTIVE USERS</div>
           <div className="mt-2 text-2xl font-semibold text-slate-800">{stats.active.toLocaleString()}</div>
         </div>
-
         <div className="bg-white rounded-lg p-4 shadow-sm border">
           <div className="text-xs text-slate-500">USERS WITH LOANS</div>
           <div className="mt-2 text-2xl font-semibold text-slate-800">{stats.withLoans.toLocaleString()}</div>
         </div>
-
         <div className="bg-white rounded-lg p-4 shadow-sm border">
           <div className="text-xs text-slate-500">USERS WITH SAVINGS</div>
           <div className="mt-2 text-2xl font-semibold text-slate-800">{stats.withSavings.toLocaleString()}</div>
         </div>
       </div>
-
       {/* table (scrollable horizontally on small screens) */}
       <div className="overflow-x-auto">
         <div className="min-w-[920px]">
           <Table>
             <TableHeader>
               <TableRow className="bg-gray-50">
-                <TableHead className="text-left text-xs font-semibold text-slate-600">ORGANIZATION</TableHead>
-                <TableHead className="text-left text-xs font-semibold text-slate-600">USERNAME</TableHead>
-                <TableHead className="text-left text-xs font-semibold text-slate-600">EMAIL</TableHead>
-                <TableHead className="text-left text-xs font-semibold text-slate-600">PHONE NUMBER</TableHead>
-                <TableHead className="text-left text-xs font-semibold text-slate-600">DATE JOINED</TableHead>
-                <TableHead className="text-left text-xs font-semibold text-slate-600">STATUS</TableHead>
-                <TableHead className="text-left text-xs font-semibold text-slate-600">ACTIONS</TableHead>
+                <TableHead className="text-left text-xs font-semibold text-slate-600 py-2 px-4">
+                  <div className="flex items-center">
+                    <span>ORGANIZATION</span>
+                    <Funnel
+                      className="w-4 h-4 ml-1 cursor-pointer text-gray-500 hover:text-gray-700"
+                      aria-label="Filter Organization"
+                    />
+                  </div>
+                </TableHead>
+                <TableHead className="text-left text-xs font-semibold text-slate-600 py-2 px-4">
+                  <div className="flex items-center">
+                    <span>USERNAME</span>
+                    <Funnel
+                      className="w-4 h-4 ml-1 cursor-pointer text-gray-500 hover:text-gray-700"
+                      aria-label="Filter Username"
+                    />
+                  </div>
+                </TableHead>
+                <TableHead className="text-left text-xs font-semibold text-slate-600 py-2 px-4">
+                  <div className="flex items-center">
+                    <span>EMAIL</span>
+                    <Funnel
+                      className="w-4 h-4 ml-1 cursor-pointer text-gray-500 hover:text-gray-700"
+                      aria-label="Filter Email"
+                    />
+                  </div>
+                </TableHead>
+                <TableHead className="text-left text-xs font-semibold text-slate-600 py-2 px-4">
+                  <div className="flex items-center">
+                    <span>PHONE NUMBER</span>
+                    <Funnel
+                      className="w-4 h-4 ml-1 cursor-pointer text-gray-500 hover:text-gray-700"
+                      aria-label="Filter Phone Number"
+                    />
+                  </div>
+                </TableHead>
+                <TableHead className="text-left text-xs font-semibold text-slate-600 py-2 px-4">
+                  <div className="flex items-center">
+                    <span>DATE JOINED</span>
+                    <Funnel
+                      className="w-4 h-4 ml-1 cursor-pointer text-gray-500 hover:text-gray-700"
+                      aria-label="Filter Date Joined"
+                    />
+                  </div>
+                </TableHead>
+                <TableHead className="text-left text-xs font-semibold text-slate-600 py-2 px-4">
+                  <div className="flex items-center">
+                    <span>STATUS</span>
+                    <Funnel
+                      className="w-4 h-4 ml-1 cursor-pointer text-gray-500 hover:text-gray-700"
+                      aria-label="Filter Status"
+                    />
+                  </div>
+                </TableHead>
+                <TableHead className="text-left text-xs font-semibold text-slate-600 py-2 px-4">ACTIONS</TableHead>
               </TableRow>
             </TableHeader>
-
             <TableBody>
               {visible.map((user) => (
                 <TableRow key={user.id} className="hover:bg-gray-50 transition-colors">
                   <TableCell className="py-3 px-4 text-sm text-slate-700">{user.organization}</TableCell>
-
                   <TableCell className="py-3 px-4">
                     <Link
                       href={`/dashboard/users/${user.id}`}
@@ -187,33 +215,28 @@ export default function UsersPage() {
                       {user.username}
                     </Link>
                   </TableCell>
-
                   <TableCell className="py-3 px-4 text-sm text-slate-600">{user.email}</TableCell>
-
-                  <TableCell className="py-3 px-4 text-sm text-slate-600">{user.phone}</TableCell>
-
+                  <TableCell className="py-3 px-4 text-sm text-slate-600 whitespace-nowrap">{user.phone}</TableCell>
                   <TableCell className="py-3 px-4 text-sm text-slate-600">{user.date_joined}</TableCell>
-
                   <TableCell className="py-3 px-4">
                     <span
-                      className={`px-2 py-1 rounded-full text-xs font-semibold ${user.status === "active"
-                        ? "bg-green-100 text-green-800"
-                        : user.status === "inactive"
+                      className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                        user.status === "active"
+                          ? "bg-green-100 text-green-800"
+                          : user.status === "inactive"
                           ? "bg-red-100 text-red-800"
                           : "bg-yellow-100 text-yellow-800"
-                        }`}
+                      }`}
                     >
                       {user.status}
                     </span>
                   </TableCell>
-
                   <TableCell className="py-3 px-4">
                     <button
                       aria-label="Actions"
                       className="p-2 rounded hover:bg-slate-50"
                       title="More actions"
                       onClick={() => {
-                        // placeholder: replace with dropdown menu for actions
                         alert(`Actions for ${user.username}`);
                       }}
                     >
@@ -226,7 +249,6 @@ export default function UsersPage() {
           </Table>
         </div>
       </div>
-
       {/* footer / pagination */}
       <div className="px-5 py-3 border-t">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -234,13 +256,15 @@ export default function UsersPage() {
             Showing <span className="font-medium">{start}</span> to <span className="font-medium">{end}</span> of{" "}
             <span className="font-medium">{total}</span>
           </div>
-
           <div className="flex items-center gap-3">
             <div className="hidden sm:flex items-center gap-2 text-sm text-slate-600">
               <div>Rows per page</div>
               <select
                 value={perPage}
-                onChange={(e) => { setPerPage(Number(e.target.value)); setPage(1); }}
+                onChange={(e) => {
+                  setPerPage(Number(e.target.value));
+                  setPage(1);
+                }}
                 className="p-1 border rounded text-sm"
               >
                 <option value={10}>10</option>
@@ -248,7 +272,6 @@ export default function UsersPage() {
                 <option value={50}>50</option>
               </select>
             </div>
-
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
@@ -257,7 +280,6 @@ export default function UsersPage() {
               >
                 <ChevronLeft className="h-4 w-4" />
               </button>
-
               <div className="hidden sm:flex items-center gap-1">
                 {Array.from({ length: Math.min(totalPages, 7) }).map((_, idx) => {
                   const num = idx + 1;
@@ -273,7 +295,6 @@ export default function UsersPage() {
                 })}
                 {totalPages > 7 && <span className="px-2 text-sm text-slate-400">…</span>}
               </div>
-
               <button
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages}
