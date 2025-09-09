@@ -1,15 +1,21 @@
-import "@/styles/tailwind.css";   // must contain only @tailwind directives
-import "@/app/globals.css";       // your variables / @layer base etc
-import "@/styles/globals.scss";   // optional SCSS overrides
+import type { ReactNode } from "react";
+import Sidebar from "@/components/Sidebar";
 import { Navbar } from "@/components/Navbar";
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+export default function DashboardLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen bg-gray-50">
       <Navbar />
-      <main className="flex-1 p-6 bg-gray-50 dark:bg-gray-800">
-        {children}
-      </main>
+
+      <div className="flex">
+        {/* Sidebar (hidden on small screens; includes mobile header/drawer) */}
+        <Sidebar />
+
+        {/* Main content area; fill remaining space */}
+        <main className="flex-1 p-6">
+          {children}
+        </main>
+      </div>
     </div>
   );
 }
