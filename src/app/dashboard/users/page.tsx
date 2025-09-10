@@ -1,15 +1,18 @@
 "use client";
-
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useRef } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation"; // Import useRouter
 import {
   MoreVertical,
   ChevronLeft,
   ChevronRight,
   Loader2,
+  Eye,
+  UserX,
+  UserCheck,
 } from "lucide-react";
 import FilterPanel, { FilterableUsersTable, Filters as FilterValues } from "@/components/FilterPanel";
-import StatsGrid from "@/components/StatsGrid"; // 👈 import new component
+import StatsGrid from "@/components/StatsGrid";
 
 type ApiUser = {
   organization: string;
@@ -31,10 +34,10 @@ const statusBadge = (status: UserRow["status"]) => {
 };
 
 export default function UsersPage() {
+  const router = useRouter(); // Initialize router
   const [users, setUsers] = useState<UserRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
   const [orgFilter, setOrgFilter] = useState("");
   const [usernameFilter, setUsernameFilter] = useState("");
   const [emailFilter, setEmailFilter] = useState("");
@@ -43,10 +46,11 @@ export default function UsersPage() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState<number>(10);
-
   const [filterPanelOpen, setFilterPanelOpen] = useState(false);
   const [filterAnchorRect, setFilterAnchorRect] = useState<DOMRect | null>(null);
   const [filterFocus, setFilterFocus] = useState<keyof FilterValues | null>(null);
+  const [actionsOpen, setActionsOpen] = useState<number | null>(null); // State for dropdown
+  const wrapperRef = useRef<HTMLDivElement>(null); // Ref for outside click handling
 
   useEffect(() => {
     let cancelled = false;
@@ -117,22 +121,32 @@ export default function UsersPage() {
     } catch {
       // noop
     }
+    router.push(`/dashboard/users/${user.id}`); // Navigate to details page
   };
 
   const handleFunnelClick = (e: React.MouseEvent<HTMLElement>, field?: keyof FilterValues | null) => {
     e.stopPropagation();
     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-
     if (filterPanelOpen && filterFocus === field) {
       setFilterPanelOpen(false);
       setFilterFocus(null);
       return;
     }
-
     setFilterAnchorRect(rect);
     setFilterFocus(field ?? null);
     setFilterPanelOpen(true);
   };
+
+  // Handle outside clicks to close dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node) && actionsOpen !== null) {
+        setActionsOpen(null);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [actionsOpen]);
 
   if (loading) {
     return (
@@ -150,40 +164,73 @@ export default function UsersPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6" ref={wrapperRef}>
       <div className="mb-4">
         <h2 className="text-base sm:text-lg text-slate-700 font-medium">Users</h2>
       </div>
-
       {/* ✅ Replace inline grid with component */}
       <StatsGrid stats={stats} />
-
       <FilterableUsersTable
         visible={visible}
         statusBadge={statusBadge}
         onSaveAndNavigate={handleSaveAndNavigate}
         onFunnelClick={handleFunnelClick}
       />
-
       <div className="md:hidden space-y-3">
         {visible.map((user) => (
-          <article key={user.id} className="bg-white p-4 rounded-lg border shadow-sm">
+          <article key={user.id} className="bg-white p-4 rounded-lg border shadow-sm relative">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <div className="text-xs text-slate-500">ORGANIZATION</div>
                 <div className="text-sm font-medium text-slate-800 truncate">{user.organization}</div>
               </div>
-              <div>
+              <div className="relative">
                 <button
                   aria-label={`Actions for ${user.username}`}
                   className="p-1 rounded hover:bg-slate-50"
-                  onClick={() => alert(`Actions for ${user.username}`)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setActionsOpen(actionsOpen === user.id ? null : user.id);
+                  }}
                 >
                   <MoreVertical className="h-4 w-4 text-slate-500" />
                 </button>
+                {actionsOpen === user.id && (
+                  <div
+                    className="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg z-50"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <button
+                      onClick={() => {
+                        handleSaveAndNavigate(user); // Navigate to details page
+                        setActionsOpen(null);
+                      }}
+                      className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      <Eye className="h-4 w-4 mr-2" /> View Details
+                    </button>
+                    <button
+                      onClick={() => {
+                        setActionsOpen(null);
+                        // Add blacklist logic here
+                      }}
+                      className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      <UserX className="h-4 w-4 mr-2" /> Blacklist User
+                    </button>
+                    <button
+                      onClick={() => {
+                        setActionsOpen(null);
+                        // Add activate logic here
+                      }}
+                      className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      <UserCheck className="h-4 w-4 mr-2" /> Activate User
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
-
             <div className="mt-3 grid grid-cols-2 gap-2 text-sm text-slate-600">
               <div>
                 <div className="text-xs text-slate-500">USERNAME</div>
@@ -195,18 +242,15 @@ export default function UsersPage() {
                   {user.username}
                 </Link>
               </div>
-
               <div>
                 <div className="text-xs text-slate-500">PHONE</div>
                 <div className="text-sm text-slate-600 whitespace-nowrap truncate">{user.phone}</div>
               </div>
-
               <div className="col-span-2">
                 <div className="text-xs text-slate-500">EMAIL</div>
                 <div className="text-sm text-slate-600 truncate">{user.email}</div>
               </div>
             </div>
-
             <div className="mt-3 flex items-center justify-between">
               <div className={statusBadge(user.status)}>{user.status}</div>
               <div className="text-xs text-slate-500">{user.date_joined}</div>
@@ -214,11 +258,10 @@ export default function UsersPage() {
           </article>
         ))}
       </div>
-
       <div className="px-2 sm:px-5 py-3 border-t mt-4">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div className="text-sm text-slate-600">
-            Showing <span className="font-medium">{start}</span> to <span className="font-medium">{end}</span> of {" "}
+            Showing <span className="font-medium">{start}</span> to <span className="font-medium">{end}</span> of{" "}
             <span className="font-medium">{total}</span>
           </div>
           <div className="flex items-center gap-3">
@@ -237,7 +280,6 @@ export default function UsersPage() {
                 <option value={50}>50</option>
               </select>
             </div>
-
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
@@ -247,7 +289,6 @@ export default function UsersPage() {
               >
                 <ChevronLeft className="h-4 w-4" />
               </button>
-
               <div className="hidden sm:flex items-center gap-1">
                 {Array.from({ length: Math.min(totalPages, 7) }).map((_, idx) => {
                   const num = idx + 1;
@@ -263,7 +304,6 @@ export default function UsersPage() {
                 })}
                 {totalPages > 7 && <span className="px-2 text-sm text-slate-400">…</span>}
               </div>
-
               <button
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages}
@@ -276,7 +316,6 @@ export default function UsersPage() {
           </div>
         </div>
       </div>
-
       <FilterPanel
         open={filterPanelOpen}
         anchorRect={filterAnchorRect}

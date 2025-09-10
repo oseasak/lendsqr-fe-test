@@ -388,9 +388,6 @@ export function FilterableUsersTable({
                   </button>
                 </div>
               </TableHead>
-              <TableHead className="text-left text-xs font-semibold text-slate-600 py-2 px-4">
-                <span className="whitespace-nowrap">Actions</span>
-              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -432,8 +429,8 @@ export function FilterableUsersTable({
                       >
                         <button
                           onClick={() => {
+                            onSaveAndNavigate(user); // Navigate to user details page
                             setActionsOpen(null);
-                            // Add navigation or other logic here, e.g., onSaveAndNavigate(user);
                           }}
                           className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                         >
