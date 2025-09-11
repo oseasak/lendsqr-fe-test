@@ -1,7 +1,5 @@
 @use "sass:color";
 
-/* Navbar.module.scss */
-
 /* tokens */
 $bg: #ffffff;
 $muted: #6b7280;
@@ -53,7 +51,7 @@ $shadow: 0 6px 20px rgba(2,6,23,0.08);
 }
 .searchWrap {
   width: 100%;
-  max-width: 640px; /* keep search constrained */
+  max-width: 640px;
 }
 
 /* right area (desktop) */
@@ -75,8 +73,9 @@ $shadow: 0 6px 20px rgba(2,6,23,0.08);
   font-size: 0.875rem;
   font-weight: 600;
 }
-/* replaced darken -> color.adjust */
-.docsLink:hover { color: color.adjust($muted, $lightness: -15%); }
+.docsLink:hover {
+  color: color.adjust($muted, $lightness: -15%);
+}
 
 /* notification button */
 .notifButton {
@@ -89,7 +88,9 @@ $shadow: 0 6px 20px rgba(2,6,23,0.08);
   border: none;
   cursor: pointer;
 }
-.notifButton:hover { background: $hover-bg; }
+.notifButton:hover {
+  background: $hover-bg;
+}
 
 /* small svg icon size */
 .iconSmall {
@@ -108,9 +109,11 @@ $shadow: 0 6px 20px rgba(2,6,23,0.08);
   background: transparent;
   cursor: pointer;
 }
-.navMenuTrigger:hover { background: $hover-bg; }
+.navMenuTrigger:hover {
+  background: $hover-bg;
+}
 
-/* avatar inside trigger */
+/* avatar */
 .avatar {
   border-radius: 9999px;
   object-fit: cover;
@@ -121,6 +124,13 @@ $shadow: 0 6px 20px rgba(2,6,23,0.08);
   font-size: 0.95rem;
   color: $text;
   font-weight: 600;
+}
+
+/* stars for tier */
+.stars {
+  display: flex;
+  gap: 0.25rem;
+  margin-top: 0.25rem;
 }
 
 /* menu content */
@@ -146,8 +156,9 @@ $shadow: 0 6px 20px rgba(2,6,23,0.08);
   text-decoration: none;
   font-size: 0.95rem;
 }
-/* replaced darken -> color.adjust */
-.menuLink:hover { color: color.adjust($text, $lightness: -6%); }
+.menuLink:hover {
+  color: color.adjust($text, $lightness: -6%);
+}
 
 .menuLogout {
   color: #dc2626;
@@ -157,8 +168,9 @@ $shadow: 0 6px 20px rgba(2,6,23,0.08);
   cursor: pointer;
   font-size: 0.95rem;
 }
-/* replaced darken -> color.adjust */
-.menuLogout:hover { color: color.adjust(#dc2626, $lightness: -6%); }
+.menuLogout:hover {
+  color: color.adjust(#dc2626, $lightness: -6%);
+}
 
 /* mobile header + controls */
 .mobileWrap {
@@ -173,7 +185,9 @@ $shadow: 0 6px 20px rgba(2,6,23,0.08);
   border: none;
   cursor: pointer;
 }
-.mobileToggle:hover { background: $hover-bg; }
+.mobileToggle:hover {
+  background: $hover-bg;
+}
 
 .iconHamburger {
   width: 24px;
@@ -197,12 +211,12 @@ $shadow: 0 6px 20px rgba(2,6,23,0.08);
   background: rgba(0, 0, 0, 0.4);
 }
 
-/* panel */
+/* slide panel */
 .slidePanel {
   position: relative;
   margin-left: auto;
   width: 84%;
-  max-width: 384px; /* similar to max-w-sm */
+  max-width: 384px;
   background: $bg;
   padding: 1rem;
   box-shadow: $shadow;
@@ -224,7 +238,9 @@ $shadow: 0 6px 20px rgba(2,6,23,0.08);
   border: none;
   cursor: pointer;
 }
-.panelCloseBtn:hover { background: $hover-bg; }
+.panelCloseBtn:hover {
+  background: $hover-bg;
+}
 
 /* panel nav */
 .panelNav {
@@ -254,8 +270,9 @@ $shadow: 0 6px 20px rgba(2,6,23,0.08);
   padding: 0;
   font-size: 1rem;
 }
-/* replaced darken -> color.adjust */
-.panelButton:hover { color: color.adjust($text, $lightness: -6%); }
+.panelButton:hover {
+  color: color.adjust($text, $lightness: -6%);
+}
 
 .panelLogout {
   background: transparent;
@@ -264,5 +281,26 @@ $shadow: 0 6px 20px rgba(2,6,23,0.08);
   font-weight: 600;
   cursor: pointer;
 }
-/* replaced darken -> color.adjust */
-.panelLogout:hover { color: color.adjust(#dc2626, $lightness: -6%); }
+.panelLogout:hover {
+  color: color.adjust(#dc2626, $lightness: -6%);
+}
+
+/* Mobile user section inside slide panel */
+.mobileUser {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 1rem 0;
+}
+
+.mobileUserInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 768px) {
+  /* hide mobile controls on desktop */
+  .mobileWrap {
+    display: none;
+  }
+}

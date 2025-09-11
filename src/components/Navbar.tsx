@@ -11,13 +11,16 @@ import {
   NavigationMenuTrigger,
   NavigationMenuContent,
 } from "@/components/ui/navigation-menu";
+import { Star } from "lucide-react";
 import styles from "../styles/Navbar.module.scss";
 
 export const Navbar: React.FC = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const panelRef = useRef<HTMLDivElement | null>(null);
+  const userName = "Adedeji";
+  const tier = 2;
 
-  // Close on Escape
+  // Close mobile panel on Escape
   useEffect(() => {
     if (!mobileOpen) return;
     const onKey = (e: KeyboardEvent) => {
@@ -27,7 +30,7 @@ export const Navbar: React.FC = () => {
     return () => document.removeEventListener("keydown", onKey);
   }, [mobileOpen]);
 
-  // Click outside to close
+  // Click outside to close mobile panel
   useEffect(() => {
     function onDocClick(e: MouseEvent) {
       if (!mobileOpen) return;
@@ -39,6 +42,18 @@ export const Navbar: React.FC = () => {
     return () => document.removeEventListener("click", onDocClick);
   }, [mobileOpen]);
 
+  const renderStars = () => (
+    <div className={styles.stars} aria-hidden>
+      {Array.from({ length: 3 }).map((_, i) => (
+        <Star
+          key={i}
+          className={`h-4 w-4 ${i < tier ? "text-amber-400" : "text-amber-200"}`}
+          fill="currentColor"
+        />
+      ))}
+    </div>
+  );
+
   return (
     <nav className={styles.navbar}>
       <div className={styles.container}>
@@ -46,7 +61,13 @@ export const Navbar: React.FC = () => {
           {/* Left: Logo */}
           <div className={styles.left}>
             <Link href="/dashboard" className={styles.logoLink}>
-              <Image src="/images/logo.png" alt="Lendsqr Logo" width={145} height={30} priority />
+              <Image
+                src="/images/logo.png"
+                alt="Lendsqr Logo"
+                width={145}
+                height={30}
+                priority
+              />
             </Link>
           </div>
 
@@ -57,15 +78,30 @@ export const Navbar: React.FC = () => {
             </div>
           </div>
 
-          {/* Right (desktop): Docs · Bell · Avatar + Name */}
+          {/* Desktop Right */}
           <div className={styles.desktopRight}>
             <a className={styles.docsLink} href="#">
               Docs
             </a>
 
-            <button aria-label="Notifications" className={styles.notifButton} title="Notifications">
-              <svg xmlns="http://www.w3.org/2000/svg" className={styles.iconSmall} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405C18.21 14.79 18 13.918 18 13V9a6 6 0 00-9.33-4.98M9 17h6m-6 0a3 3 0 006 0" />
+            <button
+              aria-label="Notifications"
+              className={styles.notifButton}
+              title="Notifications"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className={styles.iconSmall}
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M15 17h5l-1.405-1.405C18.21 14.79 18 13.918 18 13V9a6 6 0 00-9.33-4.98M9 17h6m-6 0a3 3 0 006 0"
+                />
               </svg>
             </button>
 
@@ -73,8 +109,14 @@ export const Navbar: React.FC = () => {
               <NavigationMenuList>
                 <NavigationMenuItem>
                   <NavigationMenuTrigger className={styles.navMenuTrigger}>
-                    <Image src="/images/Avatar.png" alt="User Avatar" width={44} height={44} className={styles.avatar} />
-                    <span className={styles.userName}>Adedeji</span>
+                    <Image
+                      src="/images/Avatar.png"
+                      alt="User Avatar"
+                      width={44}
+                      height={44}
+                      className={styles.avatar}
+                    />
+                    <span className={styles.userName}>{userName}</span>
                   </NavigationMenuTrigger>
 
                   <NavigationMenuContent className={styles.navMenuContent}>
@@ -90,7 +132,10 @@ export const Navbar: React.FC = () => {
                         </Link>
                       </li>
                       <li>
-                        <button className={styles.menuLogout} onClick={() => alert("Sign out")}>
+                        <button
+                          className={styles.menuLogout}
+                          onClick={() => alert("Sign out")}
+                        >
                           Logout
                         </button>
                       </li>
@@ -101,10 +146,8 @@ export const Navbar: React.FC = () => {
             </NavigationMenu>
           </div>
 
-          {/* Mobile / small screens: avatar (name hidden) + hamburger */}
+          {/* Mobile Right */}
           <div className={styles.mobileWrap}>
-            <Image src="/images/Avatar.png" alt="User Avatar" width={40} height={40} className={styles.avatar} />
-
             <button
               type="button"
               aria-label="Open menu"
@@ -112,15 +155,26 @@ export const Navbar: React.FC = () => {
               onClick={() => setMobileOpen(true)}
               className={styles.mobileToggle}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className={styles.iconHamburger} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className={styles.iconHamburger}
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
               </svg>
             </button>
           </div>
         </div>
       </div>
 
-      {/* Mobile slide-over panel */}
+      {/* Mobile slide-over */}
       {mobileOpen && (
         <div className={styles.mobileOverlay}>
           <div className={styles.backdrop} onClick={() => setMobileOpen(false)} />
@@ -132,20 +186,54 @@ export const Navbar: React.FC = () => {
             role="dialog"
           >
             <div className={styles.panelHeader}>
-              <Link href="/dashboard" className={styles.logoLink} onClick={() => setMobileOpen(false)}>
+              <Link
+                href="/dashboard"
+                className={styles.logoLink}
+                onClick={() => setMobileOpen(false)}
+              >
                 <Image src="/images/logo.png" alt="Lendsqr" width={120} height={28} />
               </Link>
-              <button aria-label="Close menu" onClick={() => setMobileOpen(false)} className={styles.panelCloseBtn}>
-                <svg xmlns="http://www.w3.org/2000/svg" className={styles.iconSmall} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <button
+                aria-label="Close menu"
+                onClick={() => setMobileOpen(false)}
+                className={styles.panelCloseBtn}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className={styles.iconSmall}
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
             </div>
 
+            {/* Mobile Avatar + Name + Tier */}
+            <div className={styles.mobileUser}>
+              <Image
+                src="/images/Avatar.png"
+                alt="User Avatar"
+                width={50}
+                height={50}
+                className={styles.avatar}
+              />
+              <div className={styles.mobileUserInfo}>
+                <span className={styles.userName}>{userName}</span>
+                {renderStars()}
+              </div>
+            </div>
+
             <nav className={styles.panelNav}>
               <ul className={styles.panelList}>
                 <li>
-                  <Link href="/docs" className={styles.panelLink} onClick={() => setMobileOpen(false)}>
+                  <Link
+                    href="/docs"
+                    className={styles.panelLink}
+                    onClick={() => setMobileOpen(false)}
+                  >
                     Docs
                   </Link>
                 </li>
@@ -158,23 +246,38 @@ export const Navbar: React.FC = () => {
                       alert("View notifications");
                     }}
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" className={styles.iconSmall} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405C18.21 14.79 18 13.918 18 13V9a6 6 0 00-9.33-4.98" />
-                    </svg>
                     Notifications
                   </button>
                 </li>
 
                 <li>
-                  <Link href="/profile" className={styles.panelLink} onClick={() => setMobileOpen(false)}>Profile</Link>
+                  <Link
+                    href="/profile"
+                    className={styles.panelLink}
+                    onClick={() => setMobileOpen(false)}
+                  >
+                    Profile
+                  </Link>
                 </li>
 
                 <li>
-                  <Link href="/settings" className={styles.panelLink} onClick={() => setMobileOpen(false)}>Settings</Link>
+                  <Link
+                    href="/settings"
+                    className={styles.panelLink}
+                    onClick={() => setMobileOpen(false)}
+                  >
+                    Settings
+                  </Link>
                 </li>
 
                 <li>
-                  <button className={styles.panelLogout} onClick={() => { setMobileOpen(false); alert("Sign out"); }}>
+                  <button
+                    className={styles.panelLogout}
+                    onClick={() => {
+                      setMobileOpen(false);
+                      alert("Sign out");
+                    }}
+                  >
                     Logout
                   </button>
                 </li>
