@@ -40,6 +40,15 @@ type StoredUser = {
   }>;
 };
 
+const TABS: { id: string; label: string }[] = [
+  { id: "general", label: "General Details" },
+  { id: "documents", label: "Documents" },
+  { id: "bank", label: "Bank Details" },
+  { id: "loans", label: "Loans" },
+  { id: "savings", label: "Savings" },
+  { id: "app", label: "App and System" },
+];
+
 export default function UserDetails() {
   const params = useParams();
   const router = useRouter();
@@ -261,14 +270,37 @@ export default function UserDetails() {
             tier={2}
           />
 
+          {/* Responsive tabs: select on small screens, horizontal nav on larger */}
           <div className={styles.tabsWrap}>
-            <nav className={styles.tabNav}>
-              <Tab label="General Details" id="general" active={activeTab === "general"} onClick={() => setActiveTab("general")} />
-              <Tab label="Documents" id="documents" active={activeTab === "documents"} onClick={() => setActiveTab("documents")} />
-              <Tab label="Bank Details" id="bank" active={activeTab === "bank"} onClick={() => setActiveTab("bank")} />
-              <Tab label="Loans" id="loans" active={activeTab === "loans"} onClick={() => setActiveTab("loans")} />
-              <Tab label="Savings" id="savings" active={activeTab === "savings"} onClick={() => setActiveTab("savings")} />
-              <Tab label="App and System" id="app" active={activeTab === "app"} onClick={() => setActiveTab("app")} />
+            {/* dropdown visible on small screens */}
+            <label className={styles.tabSelectLabel} htmlFor="section-select" aria-hidden>
+              Section
+            </label>
+            <select
+              id="section-select"
+              aria-label="Select section"
+              className={styles.tabSelect}
+              value={activeTab}
+              onChange={(e) => setActiveTab(e.target.value)}
+            >
+              {TABS.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.label}
+                </option>
+              ))}
+            </select>
+
+            {/* desktop / tablet nav */}
+            <nav className={styles.tabNav} role="tablist" aria-label="User detail sections">
+              {TABS.map((t) => (
+                <Tab
+                  key={t.id}
+                  label={t.label}
+                  id={t.id}
+                  active={activeTab === t.id}
+                  onClick={() => setActiveTab(t.id)}
+                />
+              ))}
             </nav>
           </div>
         </div>
@@ -363,6 +395,9 @@ function Tab({
       onClick={onClick}
       className={`${styles.tab} ${active ? styles.tabActive : ""}`}
       aria-current={active ? "page" : undefined}
+      role="tab"
+      aria-selected={active ? "true" : "false"}
+      id={`tab-${id}`}
     >
       {label}
     </button>

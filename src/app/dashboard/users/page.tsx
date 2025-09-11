@@ -238,13 +238,8 @@ export default function UsersPage() {
             <div className={styles.cardBody}>
               <div className={styles.twoCol}>
                 <div>
-                  <div className={styles.labelSmall}>USERNAME</div>
-                  <button
-                    onClick={() => handleSaveAndNavigate(user)}
-                    className={styles.usernameBtn}
-                  >
-                    {user.username}
-                  </button>
+                    <div className={styles.labelSmall}>USERNAME</div>
+                    <div className={styles.valueSmall}>{user.username}</div>
                 </div>
 
                 <div>
