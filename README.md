@@ -1,36 +1,83 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Lendsqr Frontend Engineering Assessment
 
-## Getting Started
+This repository contains my solution for the Lendsqr Frontend Engineering Assessment. The assessment evaluates skills in building a responsive, high-fidelity web application using **React**, **TypeScript**, and **SCSS**.
 
-First, run the development server:
+---
+
+## Project Overview
+
+At Lendsqr, many lenders use web apps to reach over half a million customers. This project is a partial simulation of the **Lendsqr Admin Console**, focusing on:
+
+- Login page  
+- Dashboard  
+- Users page  
+- User Details page  
+
+The application is **mobile responsive** and follows the design provided in [Figma](https://www.figma.com/file/ZKILoCoIoy1IESdBpq3GNC/FrontendTesting?node-id=5530%3A0).
+
+---
+
+## Mock API
+
+User data is generated using **Faker.js**:
+
+- 500 mock user records are created dynamically using `@faker-js/faker`.  
+- Data is served via a local mock API in the frontend.  
+- User details are stored and retrieved using **localStorage** for the User Details page.  
+
+> Faker ensures realistic user data without relying on external APIs.
+
+---
+
+## Features Implemented
+
+- Full **mobile-responsive design** matching the Figma layout  
+- **Dashboard, Users, and User Details pages** implemented  
+- User pages fetch data from **mock API (Faker)**  
+- Local storage integration for user details  
+- **Avatar dropdown menu** with profile, settings, and logout  
+- Mobile slide-over menu for smaller screens  
+- Full **SCSS-based styling** with modular CSS  
+
+---
+
+## Credentials
+
+To log in to the site:
+
+Email: test@example.com
+Password: password123
+
+
+---
+
+## Tech Stack
+
+- **React** (function components with hooks)  
+- **TypeScript** (type safety and code reliability)  
+- **SCSS** (modular and maintainable styling)  
+- **Faker.js** (mock API data generation)  
+
+---
+
+## Known Limitations / Pending Features
+
+- No backend integration (mock API only)  
+
+---
+
+## Running the Project
+
+1. Clone the repo:
 
 ```bash
+git clone https://github.com/<your-username>/lendsqr-fe-test.git
+cd lendsqr-fe-test
+
+2. Install dependencies: 
+
+npm install
+
+3. Run locally
+
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
