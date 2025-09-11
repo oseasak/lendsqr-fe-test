@@ -1,0 +1,170 @@
+/* StatsGrid.module.scss
+   Responsive, fluid styles for the StatsGrid component
+*/
+
+/* tokens */
+$purple-100: #f3e8ff;
+$purple-600: #7c3aed;
+
+$blue-100: #eff6ff;
+$blue-600: #2563eb;
+
+$red-100: #fee2e2;
+$red-600: #dc2626;
+
+$pink-100: #fce7f3;
+$pink-600: #db2777;
+
+$card-border: #e5e7eb;
+$text-muted: #6b7280;
+$text-strong: #111827;
+$bg-white: #ffffff;
+$shadow-light: 0 6px 18px rgba(2, 6, 23, 0.04);
+
+/* breakpoints (used only where helpful) */
+$sm: 640px;
+$md: 768px;
+$lg: 1024px;
+
+/* Root grid: fluid and wraps naturally */
+.statsGrid {
+  display: grid;
+  gap: clamp(0.75rem, 2vw, 1.5rem);
+
+  /* fluid columns: each card min 220px, expand evenly */
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  align-items: start;
+}
+
+/* Card */
+.card {
+  background: $bg-white;
+  padding: clamp(0.75rem, 1.5vw, 1.5rem);
+  border-radius: 0.5rem;
+  border: 1px solid $card-border;
+  box-shadow: $shadow-light;
+  display: flex;
+  flex-direction: column;
+  min-height: 96px;
+  transition: transform 160ms ease, box-shadow 160ms ease;
+  will-change: transform;
+
+  &:hover,
+  &:focus-within {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 30px rgba(2,6,23,0.06);
+  }
+
+  /* On medium+ screens, use two-column layout inside card for denser display */
+  @media (min-width: $md) {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-column-gap: clamp(0.75rem, 2vw, 1rem);
+    align-items: center;
+  }
+}
+
+/* Icon wrapper: scales fluidly */
+.iconWrapper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(40px, 6vw, 56px);
+  height: clamp(40px, 6vw, 56px);
+  border-radius: 9999px;
+  margin-bottom: 0.75rem;
+  flex-shrink: 0;
+
+  /* When card is grid (md+), vertically center and remove bottom margin */
+  @media (min-width: $md) {
+    margin-bottom: 0;
+  }
+}
+
+/* Icon sizing - lucide icons use currentColor */
+.icon {
+  width: 55%;
+  height: 55%;
+  display: block;
+  stroke-width: 1.5;
+  color: inherit;
+}
+
+/* color variants — background + icon color */
+.iconWrapper--purple {
+  background: $purple-100;
+  color: $purple-600;
+}
+
+.iconWrapper--blue {
+  background: $blue-100;
+  color: $blue-600;
+}
+
+.iconWrapper--red {
+  background: $red-100;
+  color: $red-600;
+}
+
+.iconWrapper--pink {
+  background: $pink-100;
+  color: $pink-600;
+}
+
+/* Content column: label + value */
+.label {
+  font-size: clamp(0.625rem, 1vw, 0.75rem);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: $text-muted;
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+}
+
+/* Big value: fluid, clamps to reasonable range */
+.value {
+  font-size: clamp(1.125rem, 2.5vw, 1.875rem); /* scales between ~18px and ~30px */
+  font-weight: 700;
+  margin-top: 0;
+  color: $text-strong;
+  line-height: 1.05;
+  word-break: keep-all;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+/* When layout is two-column (md+), ensure content sits nicely */
+@media (min-width: $md) {
+  .card {
+    align-items: center;
+  }
+
+  .label {
+    margin-bottom: 0.15rem;
+  }
+
+  .value {
+    font-size: clamp(1.125rem, 1.6vw, 1.6rem);
+  }
+}
+
+/* Tight small-screen adjustments */
+@media (max-width: 360px) {
+  .value {
+    font-size: 1.1rem;
+  }
+
+  .iconWrapper {
+    width: 36px;
+    height: 36px;
+  }
+}
+
+/* Respect user motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .card {
+    transition: none;
+    transform: none !important;
+  }
+}

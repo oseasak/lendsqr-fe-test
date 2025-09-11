@@ -1,4 +1,3 @@
-// src/components/layout/Navbar.tsx
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
@@ -12,6 +11,7 @@ import {
   NavigationMenuTrigger,
   NavigationMenuContent,
 } from "@/components/ui/navigation-menu";
+import styles from "../styles/Navbar.module.scss";
 
 export const Navbar: React.FC = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -40,81 +40,57 @@ export const Navbar: React.FC = () => {
   }, [mobileOpen]);
 
   return (
-    <nav className="w-full bg-white">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6">
-        <div className="flex items-center justify-between py-3">
+    <nav className={styles.navbar}>
+      <div className={styles.container}>
+        <div className={styles.inner}>
           {/* Left: Logo */}
-          <div className="flex items-center">
-            <Link href="/dashboard" className="inline-flex items-center">
-              <Image
-                src="/images/logo.png"
-                alt="Lendsqr Logo"
-                width={144.8}
-                height={30}
-                priority
-              />
+          <div className={styles.left}>
+            <Link href="/dashboard" className={styles.logoLink}>
+              <Image src="/images/logo.png" alt="Lendsqr Logo" width={145} height={30} priority />
             </Link>
           </div>
-          
-              <div className="flex items-center space-x-4">
-                <SearchBar /> {/* Add SearchBar here */}
-                {/* <ThemeToggle /> */}
-              </div>
+
+          {/* Center: Search */}
+          <div className={styles.center}>
+            <div className={styles.searchWrap}>
+              <SearchBar />
+            </div>
+          </div>
 
           {/* Right (desktop): Docs · Bell · Avatar + Name */}
-          <div className="hidden md:flex items-center space-x-6">
-            <a href="#" className="text-gray-600 hover:text-gray-900 text-sm font-medium">
+          <div className={styles.desktopRight}>
+            <a className={styles.docsLink} href="#">
               Docs
             </a>
 
-            <button
-              aria-label="Notifications"
-              className="relative text-gray-600 hover:text-gray-900 p-1 rounded-md"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M15 17h5l-1.405-1.405C18.21 14.79 18 13.918 18 13V9a6 6 0 00-9.33-4.98M9 17h6m-6 0a3 3 0 006 0"
-                />
+            <button aria-label="Notifications" className={styles.notifButton} title="Notifications">
+              <svg xmlns="http://www.w3.org/2000/svg" className={styles.iconSmall} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405C18.21 14.79 18 13.918 18 13V9a6 6 0 00-9.33-4.98M9 17h6m-6 0a3 3 0 006 0" />
               </svg>
             </button>
 
             <NavigationMenu>
               <NavigationMenuList>
                 <NavigationMenuItem>
-                  <NavigationMenuTrigger className="flex items-center space-x-2">
-                    <Image
-                      src="/images/Avatar.png"
-                      alt="User Avatar"
-                      width={48}
-                      height={48}
-                      className="rounded-full"
-                    />
-                    <span className="text-sm font-medium text-gray-700">Adedeji</span>
+                  <NavigationMenuTrigger className={styles.navMenuTrigger}>
+                    <Image src="/images/Avatar.png" alt="User Avatar" width={44} height={44} className={styles.avatar} />
+                    <span className={styles.userName}>Adedeji</span>
                   </NavigationMenuTrigger>
 
-                  <NavigationMenuContent className="bg-white shadow-md rounded-md p-4 min-w-[150px]">
-                    <ul className="flex flex-col space-y-2">
+                  <NavigationMenuContent className={styles.navMenuContent}>
+                    <ul className={styles.menuList}>
                       <li>
-                        <Link href="/profile" className="text-gray-700 hover:text-gray-900 text-sm">
+                        <Link href="/profile" className={styles.menuLink}>
                           Profile
                         </Link>
                       </li>
                       <li>
-                        <Link href="/settings" className="text-gray-700 hover:text-gray-900 text-sm">
+                        <Link href="/settings" className={styles.menuLink}>
                           Settings
                         </Link>
                       </li>
                       <li>
-                        <button className="text-red-600 hover:text-red-800 text-sm" onClick={() => alert("Sign out")}>
+                        <button className={styles.menuLogout} onClick={() => alert("Sign out")}>
                           Logout
                         </button>
                       </li>
@@ -126,23 +102,17 @@ export const Navbar: React.FC = () => {
           </div>
 
           {/* Mobile / small screens: avatar (name hidden) + hamburger */}
-          <div className="flex items-center md:hidden gap-3">
-            <Image
-              src="/images/Avatar.png"
-              alt="User Avatar"
-              width={40}
-              height={40}
-              className="rounded-full"
-            />
-            {/* Hamburger */}
+          <div className={styles.mobileWrap}>
+            <Image src="/images/Avatar.png" alt="User Avatar" width={40} height={40} className={styles.avatar} />
+
             <button
               type="button"
               aria-label="Open menu"
               aria-expanded={mobileOpen}
               onClick={() => setMobileOpen(true)}
-              className="inline-flex items-center justify-center rounded-md p-2 text-gray-700 hover:bg-slate-50"
+              className={styles.mobileToggle}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <svg xmlns="http://www.w3.org/2000/svg" className={styles.iconHamburger} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>
@@ -152,43 +122,43 @@ export const Navbar: React.FC = () => {
 
       {/* Mobile slide-over panel */}
       {mobileOpen && (
-        <div className="fixed inset-0 z-50 flex">
-          {/* backdrop */}
-          <div className="fixed inset-0 bg-black/40" onClick={() => setMobileOpen(false)} />
+        <div className={styles.mobileOverlay}>
+          <div className={styles.backdrop} onClick={() => setMobileOpen(false)} />
 
-          {/* panel */}
           <aside
             ref={panelRef}
-            className="relative ml-auto w-[84%] max-w-sm bg-white p-4 shadow-xl"
+            className={styles.slidePanel}
             aria-label="Mobile menu"
+            role="dialog"
           >
-            <div className="flex items-center justify-between">
-              <Link href="/dashboard" className="inline-flex items-center">
+            <div className={styles.panelHeader}>
+              <Link href="/dashboard" className={styles.logoLink} onClick={() => setMobileOpen(false)}>
                 <Image src="/images/logo.png" alt="Lendsqr" width={120} height={28} />
               </Link>
-              <button aria-label="Close menu" onClick={() => setMobileOpen(false)} className="rounded-md p-2 hover:bg-slate-50">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <button aria-label="Close menu" onClick={() => setMobileOpen(false)} className={styles.panelCloseBtn}>
+                <svg xmlns="http://www.w3.org/2000/svg" className={styles.iconSmall} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
             </div>
 
-            <nav className="mt-6">
-              <ul className="space-y-4">
+            <nav className={styles.panelNav}>
+              <ul className={styles.panelList}>
                 <li>
-                  <Link href="/docs" className="block text-gray-700 font-medium" onClick={() => setMobileOpen(false)}>
+                  <Link href="/docs" className={styles.panelLink} onClick={() => setMobileOpen(false)}>
                     Docs
                   </Link>
                 </li>
+
                 <li>
                   <button
-                    className="flex items-center gap-3 w-full text-left text-gray-700"
+                    className={styles.panelButton}
                     onClick={() => {
                       setMobileOpen(false);
                       alert("View notifications");
                     }}
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <svg xmlns="http://www.w3.org/2000/svg" className={styles.iconSmall} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405C18.21 14.79 18 13.918 18 13V9a6 6 0 00-9.33-4.98" />
                     </svg>
                     Notifications
@@ -196,15 +166,15 @@ export const Navbar: React.FC = () => {
                 </li>
 
                 <li>
-                  <Link href="/profile" className="block text-gray-700" onClick={() => setMobileOpen(false)}>Profile</Link>
+                  <Link href="/profile" className={styles.panelLink} onClick={() => setMobileOpen(false)}>Profile</Link>
                 </li>
 
                 <li>
-                  <Link href="/settings" className="block text-gray-700" onClick={() => setMobileOpen(false)}>Settings</Link>
+                  <Link href="/settings" className={styles.panelLink} onClick={() => setMobileOpen(false)}>Settings</Link>
                 </li>
 
                 <li>
-                  <button className="block text-red-600" onClick={() => { setMobileOpen(false); alert("Sign out"); }}>
+                  <button className={styles.panelLogout} onClick={() => { setMobileOpen(false); alert("Sign out"); }}>
                     Logout
                   </button>
                 </li>
@@ -215,4 +185,6 @@ export const Navbar: React.FC = () => {
       )}
     </nav>
   );
-}
+};
+
+export default Navbar;

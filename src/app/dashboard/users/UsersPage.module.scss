@@ -1,0 +1,324 @@
+/* UsersPage.module.scss
+   Page-level styles for UsersPage component.
+   Responsive: mobile-first, hides mobile-cards at md breakpoint.
+*/
+
+$bg-white: #ffffff;
+$muted: #6b7280;
+$text-strong: #111827;
+$border: #e5e7eb;
+$teal-500: #14b8a6;
+$danger: #dc2626;
+$yellow-600: #ca8a04;
+
+/* page container */
+.page {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem;
+  overflow-x: hidden; /* ✅ prevent horizontal scrollbars */
+}
+
+/* header */
+.header {
+  margin-bottom: 1rem;
+}
+.title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: $text-strong;
+}
+
+/* loading + error */
+.loadingWrap {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+}
+.spinner {
+  width: 32px;
+  height: 32px;
+  color: $teal-500;
+}
+.loadingText {
+  color: #374151;
+  font-size: 0.95rem;
+}
+.centerError {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $danger;
+}
+
+/* stats wrapper */
+.statsSection {
+  margin-bottom: 1.25rem;
+}
+
+/* desktop table section */
+.tableSection {
+  margin-bottom: 1.25rem;
+}
+
+/* mobile cards */
+.mobileCards {
+  display: block;
+  margin-bottom: 1rem;
+
+  @media (min-width: 768px) {
+    display: none;
+  }
+}
+
+/* card */
+.card {
+  background: $bg-white;
+  border: 1px solid $border;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  box-shadow: 0 1px 2px rgba(15,23,42,0.03);
+  position: relative;
+  overflow: hidden; /* ✅ contain children */
+}
+
+/* top row */
+.cardTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+/* organization */
+.orgWrap { min-width: 0; }
+.labelSmall {
+  font-size: 0.675rem;
+  color: $muted;
+  margin-bottom: 0.125rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.orgValue {
+  color: $text-strong;
+  font-weight: 600;
+  font-size: 0.95rem;
+
+  /* ✅ wrap on small screens */
+  white-space: normal;
+  overflow: visible;
+  text-overflow: unset;
+
+  @media (min-width: 640px) {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+/* actions */
+.actionsWrap { position: relative; }
+.actionBtn {
+  background: transparent;
+  border: none;
+  padding: 0.25rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.actionBtn:hover { background: #f8fafc; }
+
+.iconSmall {
+  width: 18px;
+  height: 18px;
+  color: #4b5563;
+}
+
+/* dropdown */
+.actionsDropdown {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 0.5rem);
+  width: 12rem;
+  max-width: 90vw; /* ✅ prevent overflow on tiny screens */
+  background: $bg-white;
+  border: 1px solid $border;
+  border-radius: 0.5rem;
+  box-shadow: 0 8px 24px rgba(2,6,23,0.08);
+  z-index: 60;
+}
+.actionsItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  background: transparent;
+  border: none;
+  text-align: left;
+  font-size: 0.9rem;
+  color: #374151;
+  cursor: pointer;
+}
+.actionsItem:hover { background: #f3f4f6; }
+
+/* body */
+.cardBody { margin-top: 0.75rem; }
+.twoCol {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); /* ✅ shrink-safe */
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+.colSpan2 { grid-column: 1 / -1; }
+
+.usernameBtn {
+  background: transparent;
+  border: none;
+  padding: 0;
+  color: #0ea5a0;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.95rem;
+  text-align: left;
+}
+.usernameBtn:hover { text-decoration: underline; }
+
+.valueSmall {
+  color: #4b5563;
+  font-size: 0.95rem;
+
+  /* ✅ wrap safely */
+  white-space: normal;
+  overflow: visible;
+  text-overflow: unset;
+
+  @media (min-width: 640px) {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+/* footer */
+.cardFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+.dateSmall {
+  color: $muted;
+  font-size: 0.75rem;
+}
+
+/* status badges */
+.statusBadge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: lowercase;
+  display: inline-block;
+  min-width: 72px;
+  text-align: center;
+}
+.statusBadge--active {
+  background: #dcfce7;
+  color: #166534;
+}
+.statusBadge--inactive {
+  background: #fee2e2;
+  color: #7f1d1d;
+}
+.statusBadge--pending {
+  background: #fffbeb;
+  color: $yellow-600;
+}
+
+/* Pagination */
+.paginationWrap {
+  border-top: 1px solid $border;
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+}
+.paginationInner {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  flex-wrap: wrap; /* ✅ allow wrapping */
+}
+
+@media (min-width: 640px) {
+  .paginationInner {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.paginationInfo { color: #475569; font-size: 0.95rem; }
+.bold { font-weight: 700; }
+
+/* controls */
+.paginationControls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap; /* ✅ allow wrapping */
+}
+.rowsPerPage {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #475569;
+  font-size: 0.9rem;
+}
+.rowsLabel { display: none; }
+
+@media (min-width: 640px) {
+  .rowsLabel { display: block; }
+}
+
+.rowsSelect {
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid $border;
+  font-size: 0.9rem;
+}
+
+/* pager */
+.pager {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap; /* ✅ allow wrapping */
+}
+.pagerBtn {
+  padding: 0.375rem;
+  border-radius: 6px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+.pagerBtn:hover { background: #f8fafc; }
+.disabled { opacity: 0.45; cursor: not-allowed; }
+.pageList { display: flex; align-items: center; gap: 0.35rem; margin: 0 0.25rem; flex-wrap: wrap; }
+.pageBtn {
+  padding: 0.25rem 0.6rem;
+  border-radius: 6px;
+  background: $bg-white;
+  border: 1px solid $border;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+.activePage {
+  background: $teal-500;
+  color: #fff;
+  border-color: $teal-500;
+}
+.ellipsis { color: #9ca3af; padding: 0 0.25rem; }

@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import { Users, UserCheck, CreditCard, PiggyBank } from "lucide-react";
+import styles from "../styles/StatsGrid.module.scss";
 
 type Stats = {
   total: number;
@@ -15,50 +16,46 @@ interface StatsGridProps {
 
 export default function StatsGrid({ stats }: StatsGridProps) {
   const items = [
-    { 
-      label: "USERS", 
-      value: stats.total, 
-      icon: Users,
-      color: "bg-purple-100 text-purple-600"
+    {
+      label: "USERS",
+      value: stats.total,
+      Icon: Users,
+      colorKey: "purple",
     },
-    { 
-      label: "ACTIVE USERS", 
-      value: stats.active, 
-      icon: UserCheck,
-      color: "bg-blue-100 text-blue-600"
+    {
+      label: "ACTIVE USERS",
+      value: stats.active,
+      Icon: UserCheck,
+      colorKey: "blue",
     },
-    { 
-      label: "USERS WITH LOANS", 
-      value: stats.withLoans, 
-      icon: CreditCard,
-      color: "bg-red-100 text-red-600"
+    {
+      label: "USERS WITH LOANS",
+      value: stats.withLoans,
+      Icon: CreditCard,
+      colorKey: "red",
     },
-    { 
-      label: "USERS WITH SAVINGS", 
-      value: stats.withSavings, 
-      icon: PiggyBank,
-      color: "bg-pink-100 text-pink-600"
+    {
+      label: "USERS WITH SAVINGS",
+      value: stats.withSavings,
+      Icon: PiggyBank,
+      colorKey: "pink",
     },
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      {items.map((item, index) => {
-        const IconComponent = item.icon;
+    <div className={styles.statsGrid} role="region" aria-label="Top statistics">
+      {items.map((item, idx) => {
+        const Icon = item.Icon;
+        const iconWrapperClass = `${styles.iconWrapper} ${styles[`iconWrapper--${item.colorKey}`]}`;
         return (
-          <div
-            key={index}
-            className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm"
-          >
-            <div className={`inline-flex items-center justify-center p-3 rounded-full ${item.color} mb-4`}>
-              <IconComponent className="h-5 w-5" />
+          <div key={idx} className={styles.card}>
+            <div className={iconWrapperClass} aria-hidden>
+              <Icon className={styles.icon} />
             </div>
-            <div className="text-xs uppercase tracking-wide text-gray-500 font-medium">
-              {item.label}
-            </div>
-            <div className="text-2xl font-bold text-gray-900 mt-2">
-              {item.value.toLocaleString()}
-            </div>
+
+            <div className={styles.label}>{item.label}</div>
+
+            <div className={styles.value}>{item.value.toLocaleString()}</div>
           </div>
         );
       })}

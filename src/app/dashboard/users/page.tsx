@@ -15,6 +15,7 @@ import FilterPanel, {
   Filters as FilterValues,
 } from "@/components/FilterPanel";
 import StatsGrid from "@/components/StatsGrid";
+import styles from "./UsersPage.module.scss";
 
 type ApiUser = {
   organization: string;
@@ -27,12 +28,15 @@ type ApiUser = {
 
 type UserRow = ApiUser & { id: number };
 
-const statusBadge = (status: UserRow["status"]) => {
+/**
+ * statusBadge returns CSS module classNames now.
+ */
+const statusBadge = (status: UserRow["status"], stylesObj: any) => {
   if (status === "active")
-    return "px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800";
+    return `${stylesObj.statusBadge} ${stylesObj["statusBadge--active"]}`;
   if (status === "inactive")
-    return "px-2 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800";
-  return "px-2 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800";
+    return `${stylesObj.statusBadge} ${stylesObj["statusBadge--inactive"]}`;
+  return `${stylesObj.statusBadge} ${stylesObj["statusBadge--pending"]}`;
 };
 
 export default function UsersPage() {
@@ -66,8 +70,7 @@ export default function UsersPage() {
         const mapped: UserRow[] = data.map((u, i) => ({ id: i + 1, ...u }));
         if (!cancelled) setUsers(mapped);
       } catch (err) {
-        if (!cancelled)
-          setError(err instanceof Error ? err.message : "An error occurred");
+        if (!cancelled) setError(err instanceof Error ? err.message : "An error occurred");
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -77,6 +80,20 @@ export default function UsersPage() {
       cancelled = true;
     };
   }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        wrapperRef.current &&
+        !wrapperRef.current.contains(event.target as Node) &&
+        actionsOpen !== null
+      ) {
+        setActionsOpen(null);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [actionsOpen]);
 
   const uniqueOrgs = useMemo(() => {
     const set = new Set(users.map((u) => u.organization).filter(Boolean));
@@ -94,32 +111,14 @@ export default function UsersPage() {
   const filtered = useMemo(() => {
     return users.filter((u) => {
       if (statusFilter !== "all" && u.status !== statusFilter) return false;
-      if (
-        orgFilter &&
-        !u.organization.toLowerCase().includes(orgFilter.toLowerCase())
-      )
-        return false;
-      if (
-        usernameFilter &&
-        !u.username.toLowerCase().includes(usernameFilter.toLowerCase())
-      )
-        return false;
-      if (emailFilter && !u.email.toLowerCase().includes(emailFilter.toLowerCase()))
-        return false;
-      if (phoneFilter && !u.phone.toLowerCase().includes(phoneFilter.toLowerCase()))
-        return false;
+      if (orgFilter && !u.organization.toLowerCase().includes(orgFilter.toLowerCase())) return false;
+      if (usernameFilter && !u.username.toLowerCase().includes(usernameFilter.toLowerCase())) return false;
+      if (emailFilter && !u.email.toLowerCase().includes(emailFilter.toLowerCase())) return false;
+      if (phoneFilter && !u.phone.toLowerCase().includes(phoneFilter.toLowerCase())) return false;
       if (dateFilter && u.date_joined !== dateFilter) return false;
       return true;
     });
-  }, [
-    users,
-    orgFilter,
-    usernameFilter,
-    emailFilter,
-    phoneFilter,
-    statusFilter,
-    dateFilter,
-  ]);
+  }, [users, orgFilter, usernameFilter, emailFilter, phoneFilter, statusFilter, dateFilter]);
 
   const total = filtered.length;
   const totalPages = Math.max(1, Math.ceil(total / perPage));
@@ -137,13 +136,11 @@ export default function UsersPage() {
     } catch {
       // noop
     }
+    // use router.push so the details page can call router.back() to go back
     router.push(`/dashboard/users/${user.id}`);
   };
 
-  const handleFunnelClick = (
-    e: React.MouseEvent<HTMLElement>,
-    field?: keyof FilterValues | null
-  ) => {
+  const handleFunnelClick = (e: React.MouseEvent<HTMLElement>, field?: keyof FilterValues | null) => {
     e.stopPropagation();
     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
     if (filterPanelOpen && filterFocus === field) {
@@ -156,217 +153,181 @@ export default function UsersPage() {
     setFilterPanelOpen(true);
   };
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        wrapperRef.current &&
-        !wrapperRef.current.contains(event.target as Node) &&
-        actionsOpen !== null
-      ) {
-        setActionsOpen(null);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [actionsOpen]);
-
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <Loader2 className="h-8 w-8 animate-spin text-teal-500" />
-        <span className="ml-2 text-slate-700">Loading users...</span>
+      <div className={styles.loadingWrap}>
+        <Loader2 className={styles.spinner} />
+        <span className={styles.loadingText}>Loading users...</span>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh] text-red-500">
-        Error: {error}
-      </div>
+      <div className={styles.centerError}>Error: {error}</div>
     );
   }
 
   return (
-    <div
-      className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6"
-      ref={wrapperRef}
-    >
-      <div className="mb-4">
-        <h1 className="text-lg sm:text-xl font-semibold text-slate-800">Users</h1>
-      </div>
-      <StatsGrid stats={stats} />
+    <div className={styles.page} ref={wrapperRef}>
+      <header className={styles.header}>
+        <h1 className={styles.title}>Users</h1>
+      </header>
 
-      {/* ✅ Desktop table */}
-      <FilterableUsersTable
-        visible={visible}
-        statusBadge={statusBadge}
-        onSaveAndNavigate={handleSaveAndNavigate}
-        onFunnelClick={handleFunnelClick}
-      />
+      <section className={styles.statsSection}>
+        <StatsGrid stats={stats} />
+      </section>
 
-      {/* ✅ Mobile cards */}
-      <div className="md:hidden space-y-3">
+      {/* Desktop table (FilterableUsersTable still contains Tailwind inside) */}
+      <section className={styles.tableSection}>
+        <FilterableUsersTable
+          visible={visible}
+          statusBadge={(s) => statusBadge(s, styles)}
+          onSaveAndNavigate={handleSaveAndNavigate}
+          onFunnelClick={handleFunnelClick}
+        />
+      </section>
+
+      {/* Mobile cards (hidden on md+) */}
+      <section className={styles.mobileCards}>
         {visible.map((user) => (
-          <article
-            key={user.id}
-            className="bg-white p-4 rounded-lg border shadow-sm relative"
-          >
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <div className="text-xs text-slate-500">ORGANIZATION</div>
-                <div className="text-sm font-medium text-slate-800 truncate">
-                  {user.organization}
-                </div>
+          <article key={user.id} className={styles.card}>
+            <div className={styles.cardTop}>
+              <div className={styles.orgWrap}>
+                <div className={styles.labelSmall}>ORGANIZATION</div>
+                <div className={styles.orgValue}>{user.organization}</div>
               </div>
-              <div className="relative">
+
+              <div className={styles.actionsWrap}>
                 <button
                   aria-label={`Actions for ${user.username}`}
-                  className="p-1 rounded hover:bg-slate-50"
+                  className={styles.actionBtn}
                   onClick={(e) => {
                     e.stopPropagation();
                     setActionsOpen(actionsOpen === user.id ? null : user.id);
                   }}
                 >
-                  <MoreVertical className="h-4 w-4 text-slate-500" />
+                  <MoreVertical className={styles.iconSmall} />
                 </button>
+
                 {actionsOpen === user.id && (
-                  <div
-                    className="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg z-50"
-                    onClick={(e) => e.stopPropagation()}
-                  >
+                  <div className={styles.actionsDropdown} onClick={(e) => e.stopPropagation()}>
                     <button
-                      onClick={() => {
-                        handleSaveAndNavigate(user);
-                        setActionsOpen(null);
-                      }}
-                      className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      onClick={() => { handleSaveAndNavigate(user); setActionsOpen(null); }}
+                      className={styles.actionsItem}
                     >
-                      <Eye className="h-4 w-4 mr-2" /> View Details
+                      <Eye className={styles.iconSmall} /> <span>View Details</span>
                     </button>
                     <button
-                      onClick={() => {
-                        setActionsOpen(null);
-                        // Add blacklist logic here
-                      }}
-                      className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      onClick={() => { setActionsOpen(null); /* blacklist logic */ }}
+                      className={styles.actionsItem}
                     >
-                      <UserX className="h-4 w-4 mr-2" /> Blacklist User
+                      <UserX className={styles.iconSmall} /> <span>Blacklist User</span>
                     </button>
                     <button
-                      onClick={() => {
-                        setActionsOpen(null);
-                        // Add activate logic here
-                      }}
-                      className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      onClick={() => { setActionsOpen(null); /* activate logic */ }}
+                      className={styles.actionsItem}
                     >
-                      <UserCheck className="h-4 w-4 mr-2" /> Activate User
+                      <UserCheck className={styles.iconSmall} /> <span>Activate User</span>
                     </button>
                   </div>
                 )}
               </div>
             </div>
 
-            <div className="mt-3 grid grid-cols-2 gap-2 text-sm text-slate-600">
-              <div>
-                <div className="text-xs text-slate-500">USERNAME</div>
-                {/* ✅ Changed Link → button */}
-                <button
-                  onClick={() => handleSaveAndNavigate(user)}
-                  className="text-sky-600 hover:underline text-sm font-medium truncate text-left"
-                >
-                  {user.username}
-                </button>
-              </div>
-              <div>
-                <div className="text-xs text-slate-500">PHONE</div>
-                <div className="text-sm text-slate-600 whitespace-nowrap truncate">
-                  {user.phone}
+            <div className={styles.cardBody}>
+              <div className={styles.twoCol}>
+                <div>
+                  <div className={styles.labelSmall}>USERNAME</div>
+                  <button
+                    onClick={() => handleSaveAndNavigate(user)}
+                    className={styles.usernameBtn}
+                  >
+                    {user.username}
+                  </button>
                 </div>
-              </div>
-              <div className="col-span-2">
-                <div className="text-xs text-slate-500">EMAIL</div>
-                <div className="text-sm text-slate-600 truncate">
-                  {user.email}
-                </div>
-              </div>
-            </div>
 
-            <div className="mt-3 flex items-center justify-between">
-              <div className={statusBadge(user.status)}>{user.status}</div>
-              <div className="text-xs text-slate-500">{user.date_joined}</div>
+                <div>
+                  <div className={styles.labelSmall}>PHONE</div>
+                  <div className={styles.valueSmall}>{user.phone}</div>
+                </div>
+
+                <div className={styles.colSpan2}>
+                  <div className={styles.labelSmall}>EMAIL</div>
+                  <div className={styles.valueSmall}>{user.email}</div>
+                </div>
+              </div>
+
+              <div className={styles.cardFooter}>
+                <div className={statusBadge(user.status, styles)}>{user.status}</div>
+                <div className={styles.dateSmall}>{user.date_joined}</div>
+              </div>
             </div>
           </article>
         ))}
-      </div>
+      </section>
 
-      {/* ✅ Pagination */}
-      <div className="px-2 sm:px-5 py-3 border-t mt-4">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <div className="text-sm text-slate-600">
-            Showing <span className="font-medium">{start}</span> to{" "}
-            <span className="font-medium">{end}</span> of{" "}
-            <span className="font-medium">{total}</span>
+      {/* Pagination */}
+      <section className={styles.paginationWrap}>
+        <div className={styles.paginationInner}>
+          <div className={styles.paginationInfo}>
+            Showing <span className={styles.bold}>{start}</span> to <span className={styles.bold}>{end}</span> of <span className={styles.bold}>{total}</span>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 text-sm text-slate-600">
-              <div className="hidden sm:block">Rows per page</div>
+
+          <div className={styles.paginationControls}>
+            <div className={styles.rowsPerPage}>
+              <div className={styles.rowsLabel}>Rows per page</div>
               <select
                 value={perPage}
-                onChange={(e) => {
-                  setPerPage(Number(e.target.value));
-                  setPage(1);
-                }}
-                className="p-1 border rounded text-sm w-20"
+                onChange={(e) => { setPerPage(Number(e.target.value)); setPage(1); }}
+                className={styles.rowsSelect}
               >
                 <option value={10}>10</option>
                 <option value={20}>20</option>
                 <option value={50}>50</option>
               </select>
             </div>
-            <div className="flex items-center gap-2">
+
+            <div className={styles.pager}>
               <button
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1}
-                className="p-2 rounded disabled:opacity-50"
+                className={`${styles.pagerBtn} ${page === 1 ? styles.disabled : ""}`}
                 aria-label="Previous page"
               >
-                <ChevronLeft className="h-4 w-4" />
+                <ChevronLeft className={styles.iconSmall} />
               </button>
-              <div className="hidden sm:flex items-center gap-1">
+
+              <div className={styles.pageList}>
                 {Array.from({ length: Math.min(totalPages, 7) }).map((_, idx) => {
                   const num = idx + 1;
                   return (
                     <button
                       key={num}
                       onClick={() => setPage(num)}
-                      className={`px-2 py-1 text-sm rounded ${num === page
-                          ? "bg-teal-500 text-white"
-                          : "bg-white border"
-                        }`}
+                      className={`${styles.pageBtn} ${num === page ? styles.activePage : ""}`}
                     >
                       {num}
                     </button>
                   );
                 })}
-                {totalPages > 7 && (
-                  <span className="px-2 text-sm text-slate-400">…</span>
-                )}
+                {totalPages > 7 && <span className={styles.ellipsis}>…</span>}
               </div>
+
               <button
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages}
-                className="p-2 rounded disabled:opacity-50"
+                className={`${styles.pagerBtn} ${page === totalPages ? styles.disabled : ""}`}
                 aria-label="Next page"
               >
-                <ChevronRight className="h-4 w-4" />
+                <ChevronRight className={styles.iconSmall} />
               </button>
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* ✅ Filter panel */}
+      {/* Filter panel (unchanged logic) */}
       <FilterPanel
         open={filterPanelOpen}
         anchorRect={filterAnchorRect}

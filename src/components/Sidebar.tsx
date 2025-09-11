@@ -1,17 +1,34 @@
 "use client";
+
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import {
-  LayoutDashboard, Users, User, Shield, CreditCard, Cpu, PiggyBank, Package,
-  Receipt, Activity, Hammer, FileText, Settings, LogOut, Menu, Building2, ClipboardList
+  LayoutDashboard,
+  Users,
+  User,
+  Shield,
+  CreditCard,
+  Cpu,
+  PiggyBank,
+  Package,
+  Receipt,
+  Activity,
+  Hammer,
+  FileText,
+  Settings,
+  LogOut,
+  Menu,
+  Building2,
+  ClipboardList,
 } from "lucide-react";
 import Image from "next/image";
+import styles from "../styles/Sidebar.module.scss";
 
 type Item = {
   id: string;
   href: string;
   label: string;
-  icon: React.ReactNode;
+  Icon: React.ComponentType<any>;
 };
 
 type Section = {
@@ -24,45 +41,45 @@ const SECTIONS: Section[] = [
   {
     id: "general",
     items: [
-      { id: "dashboard", href: "/dashboard", label: "Dashboard", icon: <LayoutDashboard className="h-5 w-5" /> },
+      { id: "dashboard", href: "/dashboard", label: "Dashboard", Icon: LayoutDashboard },
     ],
   },
   {
     id: "customers",
     title: "CUSTOMERS",
     items: [
-      { id: "users", href: "/dashboard/users", label: "Users", icon: <Users className="h-5 w-5" /> },
-      { id: "guarantors", href: "/dashboard/guarantors", label: "Guarantors", icon: <User className="h-5 w-5" /> },
-      { id: "loans", href: "/dashboard/loans", label: "Loans", icon: <CreditCard className="h-5 w-5" /> },
-      { id: "decision-models", href: "/dashboard/decision-models", label: "Decision Models", icon: <Cpu className="h-5 w-5" /> },
-      { id: "savings", href: "/dashboard/savings", label: "Savings", icon: <PiggyBank className="h-5 w-5" /> },
-      { id: "loan-requests", href: "/dashboard/loan-requests", label: "Loan Requests", icon: <ClipboardList className="h-5 w-5" /> },
-      { id: "whitelist", href: "/dashboard/whitelist", label: "Whitelist", icon: <Shield className="h-5 w-5" /> },
-      { id: "karma", href: "/dashboard/karma", label: "Karma", icon: <Shield className="h-5 w-5" /> },
+      { id: "users", href: "/dashboard/users", label: "Users", Icon: Users },
+      { id: "guarantors", href: "/dashboard/guarantors", label: "Guarantors", Icon: User },
+      { id: "loans", href: "/dashboard/loans", label: "Loans", Icon: CreditCard },
+      { id: "decision-models", href: "/dashboard/decision-models", label: "Decision Models", Icon: Cpu },
+      { id: "savings", href: "/dashboard/savings", label: "Savings", Icon: PiggyBank },
+      { id: "loan-requests", href: "/dashboard/loan-requests", label: "Loan Requests", Icon: ClipboardList },
+      { id: "whitelist", href: "/dashboard/whitelist", label: "Whitelist", Icon: Shield },
+      { id: "karma", href: "/dashboard/karma", label: "Karma", Icon: Shield },
     ],
   },
   {
     id: "businesses",
     title: "BUSINESSES",
     items: [
-      { id: "organization", href: "/dashboard/organization", label: "Organization", icon: <Building2 className="h-5 w-5" /> },
-      { id: "loan-products", href: "/dashboard/loan-products", label: "Loan Products", icon: <Package className="h-5 w-5" /> },
-      { id: "savings-products", href: "/dashboard/savings-products", label: "Savings Products", icon: <PiggyBank className="h-5 w-5" /> },
-      { id: "fees-charges", href: "/dashboard/fees-charges", label: "Fees and Charges", icon: <Receipt className="h-5 w-5" /> },
-      { id: "transactions", href: "/dashboard/transactions", label: "Transactions", icon: <Activity className="h-5 w-5" /> },
-      { id: "services", href: "/dashboard/services", label: "Services", icon: <Hammer className="h-5 w-5" /> },
-      { id: "service-account", href: "/dashboard/service-account", label: "Service Account", icon: <User className="h-5 w-5" /> },
-      { id: "settlements", href: "/dashboard/settlements", label: "Settlements", icon: <CreditCard className="h-5 w-5" /> },
-      { id: "reports", href: "/dashboard/reports", label: "Reports", icon: <FileText className="h-5 w-5" /> },
+      { id: "organization", href: "/dashboard/organization", label: "Organization", Icon: Building2 },
+      { id: "loan-products", href: "/dashboard/loan-products", label: "Loan Products", Icon: Package },
+      { id: "savings-products", href: "/dashboard/savings-products", label: "Savings Products", Icon: PiggyBank },
+      { id: "fees-charges", href: "/dashboard/fees-charges", label: "Fees and Charges", Icon: Receipt },
+      { id: "transactions", href: "/dashboard/transactions", label: "Transactions", Icon: Activity },
+      { id: "services", href: "/dashboard/services", label: "Services", Icon: Hammer },
+      { id: "service-account", href: "/dashboard/service-account", label: "Service Account", Icon: User },
+      { id: "settlements", href: "/dashboard/settlements", label: "Settlements", Icon: CreditCard },
+      { id: "reports", href: "/dashboard/reports", label: "Reports", Icon: FileText },
     ],
   },
   {
     id: "settings",
     title: "SETTINGS",
     items: [
-      { id: "preferences", href: "/dashboard/preferences", label: "Preferences", icon: <Settings className="h-5 w-5" /> },
-      { id: "fees-pricing", href: "/dashboard/fees-pricing", label: "Fees and Pricing", icon: <Receipt className="h-5 w-5" /> },
-      { id: "audit-logs", href: "/dashboard/audit-logs", label: "Audit Logs", icon: <FileText className="h-5 w-5" /> },
+      { id: "preferences", href: "/dashboard/preferences", label: "Preferences", Icon: Settings },
+      { id: "fees-pricing", href: "/dashboard/fees-pricing", label: "Fees and Pricing", Icon: Receipt },
+      { id: "audit-logs", href: "/dashboard/audit-logs", label: "Audit Logs", Icon: FileText },
     ],
   },
 ];
@@ -71,57 +88,61 @@ export default function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
+  // Persist collapsed state
   useEffect(() => {
     try {
       const saved = localStorage.getItem("sidebar-collapsed");
       if (saved !== null) setCollapsed(saved === "true");
-    } catch {}
+    } catch {
+      /* noop */
+    }
   }, []);
 
   useEffect(() => {
     try {
       localStorage.setItem("sidebar-collapsed", String(collapsed));
-    } catch {}
+    } catch {
+      /* noop */
+    }
   }, [collapsed]);
 
   return (
     <>
-      {/* Desktop Sidebar */}
+      {/* Desktop sidebar */}
       <aside
-        className={`hidden md:flex flex-col bg-white border-r min-h-screen transition-all duration-200 ease-in-out
-          ${collapsed ? "w-18" : "w-60"} shrink-0`}
+        className={`${styles.sidebar} ${collapsed ? styles.collapsed : styles.expanded} ${styles.desktop}`}
         aria-label="Sidebar"
       >
-        {/* collapse toggle */}
-        <div className="flex items-center justify-between px-4 py-4">
+        <div className={styles.header}>
           <button
-            className="p-2 rounded-md hover:bg-slate-100"
+            className={styles.toggle}
             onClick={() => setCollapsed((c) => !c)}
             aria-pressed={collapsed}
             title={collapsed ? "Expand" : "Collapse"}
           >
-            <Menu className="h-5 w-5 text-slate-600" />
+            <Menu className={styles.icon} aria-hidden />
           </button>
         </div>
 
-        {/* Navigation (non-scrollable) */}
-        <nav className="px-2 py-2">
+        <nav className={styles.nav} aria-label="Main navigation">
           {SECTIONS.map((section) => (
-            <div key={section.id} className="mb-4">
+            <div key={section.id} className={styles.section}>
               {section.title && (
-                <div className={`px-3 py-1 text-xs font-semibold text-slate-400 ${collapsed ? "hidden" : "block"}`}>
+                <div className={`${styles.sectionTitle} ${collapsed ? styles.hiddenLabel : ""}`}>
                   {section.title}
                 </div>
               )}
-              <ul className="space-y-1">
+
+              <ul className={styles.list}>
                 {section.items.map((it) => (
                   <li key={it.id}>
-                    <Link
-                      href={it.href}
-                      className="flex items-center gap-3 w-full rounded-md px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 hover:text-slate-900"
-                    >
-                      {it.icon}
-                      <span className={`${collapsed ? "hidden" : "block"} truncate`}>{it.label}</span>
+                    <Link href={it.href} className={styles.link}>
+                      <span className={styles.iconWrap}>
+                        <it.Icon className={styles.icon} aria-hidden />
+                      </span>
+                      <span className={`${styles.label} ${collapsed ? styles.hiddenLabel : ""}`}>
+                        {it.label}
+                      </span>
                     </Link>
                   </li>
                 ))}
@@ -130,53 +151,49 @@ export default function Sidebar() {
           ))}
         </nav>
 
-        {/* Sign Out */}
-        <div className="px-3 py-4">
-          <button className="flex items-center gap-3 w-full rounded-md px-3 py-2 text-sm text-slate-700 hover:bg-slate-50">
-            <LogOut className="h-5 w-5" />
-            <span className={`${collapsed ? "hidden" : "block"}`}>Sign Out</span>
+        <div className={styles.footer}>
+          <button className={styles.signOut}>
+            <LogOut className={styles.icon} aria-hidden />
+            <span className={`${styles.label} ${collapsed ? styles.hiddenLabel : ""}`}>Sign Out</span>
           </button>
         </div>
       </aside>
 
-      {/* Mobile Drawer */}
-      <div className="md:hidden">
-        <div className="flex items-center justify-between px-3 py-2 bg-white border-b">
+      {/* Mobile header + drawer */}
+      <div className={styles.mobile}>
+        <div className={styles.mobileBar}>
           <button
             onClick={() => setMobileOpen(true)}
             aria-label="Open menu"
-            className="p-2 rounded-md hover:bg-slate-100"
+            className={styles.mobileToggle}
           >
-            <Menu className="h-5 w-5 text-slate-700" />
+            <Menu className={styles.icon} aria-hidden />
           </button>
         </div>
+
         {mobileOpen && (
-          <div className="fixed inset-0 z-50 flex">
-            <div className="fixed inset-0 bg-black/40" onClick={() => setMobileOpen(false)} />
-            <aside className="relative z-50 w-72 bg-white shadow-xl">
-              <div className="px-4 py-4 flex items-center justify-between">
-                <Link href="/dashboard">
+          <div className={styles.drawerOverlay} role="dialog" aria-modal="true">
+            <div className={styles.backdrop} onClick={() => setMobileOpen(false)} />
+
+            <aside className={styles.drawer}>
+              <div className={styles.drawerHeader}>
+                <Link href="/dashboard" onClick={() => setMobileOpen(false)}>
                   <Image src="/images/logo.png" alt="logo" width={140} height={28} />
                 </Link>
-                <button onClick={() => setMobileOpen(false)} className="p-2 rounded-md hover:bg-slate-100">
+                <button onClick={() => setMobileOpen(false)} className={styles.closeBtn} aria-label="Close menu">
                   ✕
                 </button>
               </div>
-              <nav className="px-2 py-4">
+
+              <nav className={styles.drawerNav}>
                 {SECTIONS.map((section) => (
-                  <div key={section.id} className="mb-4">
-                    {section.title && (
-                      <div className="px-3 py-1 text-xs font-semibold text-slate-400">{section.title}</div>
-                    )}
-                    <ul className="space-y-1">
+                  <div key={section.id} className={styles.section}>
+                    {section.title && <div className={styles.sectionTitle}>{section.title}</div>}
+                    <ul className={styles.list}>
                       {section.items.map((it) => (
                         <li key={it.id}>
-                          <Link
-                            href={it.href}
-                            className="flex items-center gap-3 px-3 py-2 rounded-md text-slate-700 hover:bg-slate-50"
-                            onClick={() => setMobileOpen(false)}
-                          >
-                            {it.icon}
+                          <Link href={it.href} className={styles.drawerLink} onClick={() => setMobileOpen(false)}>
+                            <it.Icon className={styles.icon} aria-hidden />
                             <span>{it.label}</span>
                           </Link>
                         </li>
@@ -184,11 +201,9 @@ export default function Sidebar() {
                     </ul>
                   </div>
                 ))}
-                <button
-                  className="flex items-center gap-3 w-full px-3 py-2 rounded-md text-slate-700 hover:bg-slate-50"
-                  onClick={() => setMobileOpen(false)}
-                >
-                  <LogOut className="h-5 w-5" />
+
+                <button className={styles.drawerSignOut} onClick={() => setMobileOpen(false)}>
+                  <LogOut className={styles.icon} aria-hidden />
                   <span>Sign Out</span>
                 </button>
               </nav>
