@@ -57,7 +57,7 @@ export default function ProfileCard({
               {user?.fullName ?? user?.username ?? "Unknown User"}
             </div>
 
-            <div className="text-xs text-slate-500">User's Tier</div>
+            <div className="text-xs text-slate-500">Tier</div>
 
             <div className="flex items-center gap-0.5 ml-2" aria-hidden>
               {Array.from({ length: 3 }).map((_, i) => (

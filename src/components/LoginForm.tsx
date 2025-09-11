@@ -1,11 +1,10 @@
-// app/components/LoginForm.tsx
 'use client';
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import styles from '../styles/Login.module.scss';
 
-export default function LoginForm(): React.FC {
+export default function LoginForm() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -27,7 +26,7 @@ export default function LoginForm(): React.FC {
     return true;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!validate()) return;
 
@@ -35,21 +34,21 @@ export default function LoginForm(): React.FC {
     setError(null);
 
     try {
-      // === Replace this block with a real API call ===
-      // Example:
-      // const res = await fetch('/api/login', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ email, password }),
-      // });
-      // if (!res.ok) throw new Error('Invalid credentials');
-      // =================================================
+      // === Simulated API login ===
+      // For development/demo purposes
+      await new Promise((resolve) => setTimeout(resolve, 800));
 
-      // For now we simulate success and route immediately.
-      router.push('/dashboard'); // client-side navigation
+      // Check fake credentials
+      if (email === 'test@example.com' && password === 'password123') {
+        // Store a simple "logged in" flag in localStorage
+        localStorage.setItem('loggedIn', 'true');
+        router.push('/dashboard'); // navigate to dashboard
+      } else {
+        setError('Invalid email or password.');
+      }
     } catch (err) {
       console.error(err);
-      setError('Login failed. Please check your credentials and try again.');
+      setError('Login failed. Please try again.');
     } finally {
       setLoading(false);
     }

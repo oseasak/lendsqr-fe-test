@@ -1,5 +1,6 @@
 // src/components/FilterPanel.tsx
 "use client";
+
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
@@ -47,6 +48,7 @@ export default function FilterPanel({
   onClose,
 }: PanelProps) {
   const panelRef = useRef<HTMLDivElement | null>(null);
+
   const [filters, setFilters] = useState<Filters>({
     organization: initial.organization ?? "",
     username: initial.username ?? "",
@@ -56,6 +58,7 @@ export default function FilterPanel({
     status: initial.status ?? "",
   });
 
+  // Reset filters whenever initial values or panel opens
   useEffect(() => {
     setFilters({
       organization: initial.organization ?? "",
@@ -67,7 +70,7 @@ export default function FilterPanel({
     });
   }, [initial, open]);
 
-  // close on escape
+  // Close panel on Escape key
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
@@ -77,7 +80,7 @@ export default function FilterPanel({
     return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose]);
 
-  // click outside to close
+  // Close panel when clicking outside
   useEffect(() => {
     if (!open) return;
     const onDown = (e: MouseEvent) => {
@@ -89,53 +92,39 @@ export default function FilterPanel({
     return () => window.removeEventListener("mousedown", onDown);
   }, [open, onClose]);
 
-  // compute panel position using anchorRect, keep inside viewport
+  // Compute panel position
   const style = useMemo(() => {
-    const width = 256; // w-64
+    const width = 256;
     const gap = 8;
-    if (!anchorRect) {
-      return { left: "8px", top: "8px" } as React.CSSProperties;
-    }
+    if (!anchorRect) return { left: "8px", top: "8px" } as React.CSSProperties;
+
     const scrollX = window.scrollX ?? 0;
     const scrollY = window.scrollY ?? 0;
-    // Prefer to align near the anchor's right side but clamp to viewport
+
     let left = anchorRect.right + scrollX - width + anchorRect.width / 2;
     const minLeft = 8 + scrollX;
     const maxLeft = (window.innerWidth ?? 1024) - width - 8 + scrollX;
     if (left < minLeft) left = minLeft;
     if (left > maxLeft) left = maxLeft;
-    const top = anchorRect.bottom + gap + scrollY;
-    const panelHeightEstimate = 360;
-    let finalTop = top;
-    if (finalTop + panelHeightEstimate > (window.innerHeight + scrollY)) {
-      finalTop = Math.max(anchorRect.top - panelHeightEstimate - gap + scrollY, 8 + scrollY);
-    }
-    return {
-      position: "absolute",
-      left: `${Math.round(left)}px`,
-      top: `${Math.round(finalTop)}px`,
-      width: `${width}px`,
-    } as React.CSSProperties;
-  }, [anchorRect, open]);
 
-  // auto-focus requested field when opened
+    let top = anchorRect.bottom + gap + scrollY;
+    const panelHeightEstimate = 360;
+    if (top + panelHeightEstimate > window.innerHeight + scrollY) {
+      top = Math.max(anchorRect.top - panelHeightEstimate - gap + scrollY, 8 + scrollY);
+    }
+
+    return { position: "absolute", left: `${Math.round(left)}px`, top: `${Math.round(top)}px`, width: `${width}px` } as React.CSSProperties;
+  }, [anchorRect]); // ✅ removed 'open' to fix ESLint warning
+
+  // Auto-focus field when panel opens
   useEffect(() => {
-    if (!open) return;
-    if (!focusField) return;
+    if (!open || !focusField) return;
     const t = setTimeout(() => {
-      try {
-        const el = panelRef.current?.querySelector(`[data-field="${focusField}"]`) as
-          | HTMLInputElement
-          | HTMLSelectElement
-          | null;
-        el?.focus();
-        // move cursor to end for text inputs
-        if (el instanceof HTMLInputElement && typeof el.selectionStart === "number") {
-          const len = el.value?.length ?? 0;
-          el.setSelectionRange(len, len);
-        }
-      } catch {
-        // noop
+      const el = panelRef.current?.querySelector(`[data-field="${focusField}"]`) as HTMLInputElement | HTMLSelectElement | null;
+      el?.focus();
+      if (el instanceof HTMLInputElement && typeof el.selectionStart === "number") {
+        const len = el.value?.length ?? 0;
+        el.setSelectionRange(len, len);
       }
     }, 80);
     return () => clearTimeout(t);
@@ -145,11 +134,7 @@ export default function FilterPanel({
 
   return createPortal(
     <div aria-hidden={false} role="dialog" aria-modal="true" className="z-50 pointer-events-auto">
-      <div
-        ref={panelRef}
-        style={style}
-        className="bg-white border rounded-lg shadow-lg p-4 overflow-auto"
-      >
+      <div ref={panelRef} style={style} className="bg-white border rounded-lg shadow-lg p-4 overflow-auto">
         <h3 className="text-sm font-semibold text-slate-700 mb-3">Filter users</h3>
         <div className="space-y-3">
           {/* Organization */}
@@ -163,12 +148,11 @@ export default function FilterPanel({
             >
               <option value="">Select</option>
               {organizations.map((o) => (
-                <option key={o} value={o}>
-                  {o}
-                </option>
+                <option key={o} value={o}>{o}</option>
               ))}
             </select>
           </div>
+
           {/* Username */}
           <div>
             <label className="text-xs text-slate-500 mb-1 block">Username</label>
@@ -180,6 +164,7 @@ export default function FilterPanel({
               className="w-full h-10 rounded-md border px-3 text-sm"
             />
           </div>
+
           {/* Email */}
           <div>
             <label className="text-xs text-slate-500 mb-1 block">Email</label>
@@ -191,6 +176,7 @@ export default function FilterPanel({
               className="w-full h-10 rounded-md border px-3 text-sm"
             />
           </div>
+
           {/* Date */}
           <div>
             <label className="text-xs text-slate-500 mb-1 block">Date</label>
@@ -202,6 +188,7 @@ export default function FilterPanel({
               className="w-full h-10 rounded-md border px-3 text-sm"
             />
           </div>
+
           {/* Phone */}
           <div>
             <label className="text-xs text-slate-500 mb-1 block">Phone Number</label>
@@ -213,6 +200,7 @@ export default function FilterPanel({
               className="w-full h-10 rounded-md border px-3 text-sm"
             />
           </div>
+
           {/* Status */}
           <div>
             <label className="text-xs text-slate-500 mb-1 block">Status</label>
@@ -229,19 +217,13 @@ export default function FilterPanel({
             </select>
           </div>
         </div>
-        {/* actions */}
+
+        {/* Actions */}
         <div className="mt-4 flex items-center justify-between gap-2">
           <button
             type="button"
             onClick={() => {
-              setFilters({
-                organization: "",
-                username: "",
-                email: "",
-                date: "",
-                phone: "",
-                status: "",
-              });
+              setFilters({ organization: "", username: "", email: "", date: "", phone: "", status: "" });
               onReset?.();
             }}
             className="px-3 py-2 rounded border text-sm"
@@ -267,6 +249,9 @@ export default function FilterPanel({
   );
 }
 
+// ----------------------------
+// Users Table Component
+// ----------------------------
 export type UserRow = {
   id: number;
   organization: string;
@@ -278,7 +263,7 @@ export type UserRow = {
 };
 
 type FilterableUsersTableProps = {
-  visible: UserRow[]; // visible rows after filtering/pagination
+  visible: UserRow[];
   statusBadge: (status: UserRow["status"]) => string;
   onSaveAndNavigate: (user: UserRow) => void;
   onFunnelClick: (e: React.MouseEvent<HTMLElement>, field?: keyof Filters | null) => void;
@@ -293,7 +278,6 @@ export function FilterableUsersTable({
   const [actionsOpen, setActionsOpen] = useState<number | null>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
-  // Handle outside clicks to close dropdown
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node) && actionsOpen !== null) {
@@ -310,84 +294,22 @@ export function FilterableUsersTable({
         <Table>
           <TableHeader>
             <TableRow className="bg-gray-50">
-              <TableHead className="text-left text-xs font-semibold text-slate-600 py-2 px-4">
-                <div className="flex items-center gap-2">
-                  <span className="whitespace-nowrap">ORGANIZATION</span>
-                  <button
-                    type="button"
-                    onClick={(e) => onFunnelClick(e, "organization")}
-                    aria-label="Filter Organization"
-                    className="ml-1 p-1 rounded hover:bg-slate-100"
-                  >
-                    <Funnel className="w-4 h-4 text-gray-500" />
-                  </button>
-                </div>
-              </TableHead>
-              <TableHead className="text-left text-xs font-semibold text-slate-600 py-2 px-4">
-                <div className="flex items-center gap-2">
-                  <span className="whitespace-nowrap">USERNAME</span>
-                  <button
-                    type="button"
-                    onClick={(e) => onFunnelClick(e, "username")}
-                    aria-label="Filter Username"
-                    className="ml-1 p-1 rounded hover:bg-slate-100"
-                  >
-                    <Funnel className="w-4 h-4 text-gray-500" />
-                  </button>
-                </div>
-              </TableHead>
-              <TableHead className="text-left text-xs font-semibold text-slate-600 py-2 px-4">
-                <div className="flex items-center gap-2">
-                  <span className="whitespace-nowrap">EMAIL</span>
-                  <button
-                    type="button"
-                    onClick={(e) => onFunnelClick(e, "email")}
-                    aria-label="Filter Email"
-                    className="ml-1 p-1 rounded hover:bg-slate-100"
-                  >
-                    <Funnel className="w-4 h-4 text-gray-500" />
-                  </button>
-                </div>
-              </TableHead>
-              <TableHead className="text-left text-xs font-semibold text-slate-600 py-2 px-4">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-semibold text-slate-600 whitespace-nowrap">PHONE NUMBER</span>
-                  <button
-                    type="button"
-                    onClick={(e) => onFunnelClick(e, "phone")}
-                    aria-label="Filter Phone Number"
-                    className="ml-1 p-1 rounded hover:bg-slate-100"
-                  >
-                    <Funnel className="w-3.5 h-3.5 text-gray-500" />
-                  </button>
-                </div>
-              </TableHead>
-              <TableHead className="text-left text-xs font-semibold text-slate-600 py-2 px-4">
-                <div className="flex items-center gap-2">
-                  <span className="whitespace-nowrap">DATE JOINED</span>
-                  <button
-                    type="button"
-                    onClick={(e) => onFunnelClick(e, "date")}
-                    aria-label="Filter Date Joined"
-                    className="ml-1 p-1 rounded hover:bg-slate-100"
-                  >
-                    <Funnel className="w-4 h-4 text-gray-500" />
-                  </button>
-                </div>
-              </TableHead>
-              <TableHead className="text-left text-xs font-semibold text-slate-600 py-2 px-4">
-                <div className="flex items-center gap-2">
-                  <span className="whitespace-nowrap">STATUS</span>
-                  <button
-                    type="button"
-                    onClick={(e) => onFunnelClick(e, "status")}
-                    aria-label="Filter Status"
-                    className="ml-1 p-1 rounded hover:bg-slate-100"
-                  >
-                    <Funnel className="w-4 h-4 text-gray-500" />
-                  </button>
-                </div>
-              </TableHead>
+              {["organization", "username", "email", "phone", "date", "status"].map((field) => (
+                <TableHead key={field} className="text-left text-xs font-semibold text-slate-600 py-2 px-4">
+                  <div className="flex items-center gap-2">
+                    <span className="whitespace-nowrap">{field.toUpperCase()}</span>
+                    <button
+                      type="button"
+                      onClick={(e) => onFunnelClick(e, field as keyof Filters)}
+                      aria-label={`Filter ${field}`}
+                      className="ml-1 p-1 rounded hover:bg-slate-100"
+                    >
+                      <Funnel className="w-4 h-4 text-gray-500" />
+                    </button>
+                  </div>
+                </TableHead>
+              ))}
+              <TableHead className="py-2 px-4 text-xs font-semibold text-slate-600">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -414,7 +336,6 @@ export function FilterableUsersTable({
                     <button
                       aria-label={`Actions for ${user.username}`}
                       className="p-2 rounded hover:bg-slate-50"
-                      title="More actions"
                       onClick={(e) => {
                         e.stopPropagation();
                         setActionsOpen(actionsOpen === user.id ? null : user.id);
@@ -423,13 +344,10 @@ export function FilterableUsersTable({
                       <MoreVertical className="h-4 w-4 text-slate-500" />
                     </button>
                     {actionsOpen === user.id && (
-                      <div
-                        className="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg z-50"
-                        onClick={(e) => e.stopPropagation()}
-                      >
+                      <div className="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg z-50" onClick={(e) => e.stopPropagation()}>
                         <button
                           onClick={() => {
-                            onSaveAndNavigate(user); // Navigate to user details page
+                            onSaveAndNavigate(user);
                             setActionsOpen(null);
                           }}
                           className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -437,19 +355,13 @@ export function FilterableUsersTable({
                           <Eye className="h-4 w-4 mr-2" /> View Details
                         </button>
                         <button
-                          onClick={() => {
-                            setActionsOpen(null);
-                            // Add blacklist logic here
-                          }}
+                          onClick={() => setActionsOpen(null)}
                           className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                         >
                           <UserX className="h-4 w-4 mr-2" /> Blacklist User
                         </button>
                         <button
-                          onClick={() => {
-                            setActionsOpen(null);
-                            // Add activate logic here
-                          }}
+                          onClick={() => setActionsOpen(null)}
                           className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                         >
                           <UserCheck className="h-4 w-4 mr-2" /> Activate User

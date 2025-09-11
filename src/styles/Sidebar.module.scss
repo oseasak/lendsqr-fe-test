@@ -1,4 +1,6 @@
 /* Sidebar.module.scss */
+@use "sass:color";
+
 
 /* tokens */
 $border: #e5e7eb;
@@ -91,7 +93,8 @@ $mobile-drawer-width: 288px;
 }
 .link:hover {
   background: $hover-bg;
-  color: darken($text, 6%);
+  color: color.adjust($text, $lightness: -6%);
+
 }
 
 /* icon wrapper and icon */

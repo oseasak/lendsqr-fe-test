@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useEffect, useMemo, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -29,9 +30,9 @@ type ApiUser = {
 type UserRow = ApiUser & { id: number };
 
 /**
- * statusBadge returns CSS module classNames now.
+ * Returns CSS module class names for status badges
  */
-const statusBadge = (status: UserRow["status"], stylesObj: any) => {
+const statusBadge = (status: UserRow["status"], stylesObj: Record<string, string>) => {
   if (status === "active")
     return `${stylesObj.statusBadge} ${stylesObj["statusBadge--active"]}`;
   if (status === "inactive")
@@ -58,6 +59,7 @@ export default function UsersPage() {
   const [actionsOpen, setActionsOpen] = useState<number | null>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
+  // Fetch users
   useEffect(() => {
     let cancelled = false;
     const fetchUsers = async () => {
@@ -70,7 +72,8 @@ export default function UsersPage() {
         const mapped: UserRow[] = data.map((u, i) => ({ id: i + 1, ...u }));
         if (!cancelled) setUsers(mapped);
       } catch (err) {
-        if (!cancelled) setError(err instanceof Error ? err.message : "An error occurred");
+        if (!cancelled)
+          setError(err instanceof Error ? err.message : "An error occurred");
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -81,23 +84,19 @@ export default function UsersPage() {
     };
   }, []);
 
+  // Close actions dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        wrapperRef.current &&
-        !wrapperRef.current.contains(event.target as Node) &&
-        actionsOpen !== null
-      ) {
+      if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
         setActionsOpen(null);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [actionsOpen]);
+  }, []);
 
   const uniqueOrgs = useMemo(() => {
-    const set = new Set(users.map((u) => u.organization).filter(Boolean));
-    return Array.from(set).sort();
+    return Array.from(new Set(users.map((u) => u.organization).filter(Boolean))).sort();
   }, [users]);
 
   const stats = useMemo(() => {
@@ -111,14 +110,26 @@ export default function UsersPage() {
   const filtered = useMemo(() => {
     return users.filter((u) => {
       if (statusFilter !== "all" && u.status !== statusFilter) return false;
-      if (orgFilter && !u.organization.toLowerCase().includes(orgFilter.toLowerCase())) return false;
-      if (usernameFilter && !u.username.toLowerCase().includes(usernameFilter.toLowerCase())) return false;
-      if (emailFilter && !u.email.toLowerCase().includes(emailFilter.toLowerCase())) return false;
-      if (phoneFilter && !u.phone.toLowerCase().includes(phoneFilter.toLowerCase())) return false;
+      if (orgFilter && !u.organization.toLowerCase().includes(orgFilter.toLowerCase()))
+        return false;
+      if (usernameFilter && !u.username.toLowerCase().includes(usernameFilter.toLowerCase()))
+        return false;
+      if (emailFilter && !u.email.toLowerCase().includes(emailFilter.toLowerCase()))
+        return false;
+      if (phoneFilter && !u.phone.toLowerCase().includes(phoneFilter.toLowerCase()))
+        return false;
       if (dateFilter && u.date_joined !== dateFilter) return false;
       return true;
     });
-  }, [users, orgFilter, usernameFilter, emailFilter, phoneFilter, statusFilter, dateFilter]);
+  }, [
+    users,
+    orgFilter,
+    usernameFilter,
+    emailFilter,
+    phoneFilter,
+    statusFilter,
+    dateFilter,
+  ]);
 
   const total = filtered.length;
   const totalPages = Math.max(1, Math.ceil(total / perPage));
@@ -126,9 +137,10 @@ export default function UsersPage() {
   const end = Math.min(total, page * perPage);
   const visible = filtered.slice((page - 1) * perPage, page * perPage);
 
+  // Adjust page if current page exceeds total pages
   useEffect(() => {
     if (page > totalPages) setPage(totalPages);
-  }, [totalPages]);
+  }, [page, totalPages]);
 
   const handleSaveAndNavigate = (user: UserRow) => {
     try {
@@ -136,7 +148,6 @@ export default function UsersPage() {
     } catch {
       // noop
     }
-    // use router.push so the details page can call router.back() to go back
     router.push(`/dashboard/users/${user.id}`);
   };
 
@@ -163,9 +174,7 @@ export default function UsersPage() {
   }
 
   if (error) {
-    return (
-      <div className={styles.centerError}>Error: {error}</div>
-    );
+    return <div className={styles.centerError}>Error: {error}</div>;
   }
 
   return (
@@ -178,7 +187,6 @@ export default function UsersPage() {
         <StatsGrid stats={stats} />
       </section>
 
-      {/* Desktop table (FilterableUsersTable still contains Tailwind inside) */}
       <section className={styles.tableSection}>
         <FilterableUsersTable
           visible={visible}
@@ -188,7 +196,6 @@ export default function UsersPage() {
         />
       </section>
 
-      {/* Mobile cards (hidden on md+) */}
       <section className={styles.mobileCards}>
         {visible.map((user) => (
           <article key={user.id} className={styles.card}>
@@ -213,19 +220,26 @@ export default function UsersPage() {
                 {actionsOpen === user.id && (
                   <div className={styles.actionsDropdown} onClick={(e) => e.stopPropagation()}>
                     <button
-                      onClick={() => { handleSaveAndNavigate(user); setActionsOpen(null); }}
+                      onClick={() => {
+                        handleSaveAndNavigate(user);
+                        setActionsOpen(null);
+                      }}
                       className={styles.actionsItem}
                     >
                       <Eye className={styles.iconSmall} /> <span>View Details</span>
                     </button>
                     <button
-                      onClick={() => { setActionsOpen(null); /* blacklist logic */ }}
+                      onClick={() => {
+                        setActionsOpen(null);
+                      }}
                       className={styles.actionsItem}
                     >
                       <UserX className={styles.iconSmall} /> <span>Blacklist User</span>
                     </button>
                     <button
-                      onClick={() => { setActionsOpen(null); /* activate logic */ }}
+                      onClick={() => {
+                        setActionsOpen(null);
+                      }}
                       className={styles.actionsItem}
                     >
                       <UserCheck className={styles.iconSmall} /> <span>Activate User</span>
@@ -238,8 +252,8 @@ export default function UsersPage() {
             <div className={styles.cardBody}>
               <div className={styles.twoCol}>
                 <div>
-                    <div className={styles.labelSmall}>USERNAME</div>
-                    <div className={styles.valueSmall}>{user.username}</div>
+                  <div className={styles.labelSmall}>USERNAME</div>
+                  <div className={styles.valueSmall}>{user.username}</div>
                 </div>
 
                 <div>
@@ -262,11 +276,11 @@ export default function UsersPage() {
         ))}
       </section>
 
-      {/* Pagination */}
       <section className={styles.paginationWrap}>
         <div className={styles.paginationInner}>
           <div className={styles.paginationInfo}>
-            Showing <span className={styles.bold}>{start}</span> to <span className={styles.bold}>{end}</span> of <span className={styles.bold}>{total}</span>
+            Showing <span className={styles.bold}>{start}</span> to <span className={styles.bold}>{end}</span> of{" "}
+            <span className={styles.bold}>{total}</span>
           </div>
 
           <div className={styles.paginationControls}>
@@ -274,7 +288,10 @@ export default function UsersPage() {
               <div className={styles.rowsLabel}>Rows per page</div>
               <select
                 value={perPage}
-                onChange={(e) => { setPerPage(Number(e.target.value)); setPage(1); }}
+                onChange={(e) => {
+                  setPerPage(Number(e.target.value));
+                  setPage(1);
+                }}
                 className={styles.rowsSelect}
               >
                 <option value={10}>10</option>
@@ -322,7 +339,6 @@ export default function UsersPage() {
         </div>
       </section>
 
-      {/* Filter panel (unchanged logic) */}
       <FilterPanel
         open={filterPanelOpen}
         anchorRect={filterAnchorRect}
