@@ -1,7 +1,6 @@
 "use client";
 import React, { useEffect, useMemo, useState, useRef } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation"; // Import useRouter
+import { useRouter } from "next/navigation";
 import {
   MoreVertical,
   ChevronLeft,
@@ -11,7 +10,10 @@ import {
   UserX,
   UserCheck,
 } from "lucide-react";
-import FilterPanel, { FilterableUsersTable, Filters as FilterValues } from "@/components/FilterPanel";
+import FilterPanel, {
+  FilterableUsersTable,
+  Filters as FilterValues,
+} from "@/components/FilterPanel";
 import StatsGrid from "@/components/StatsGrid";
 
 type ApiUser = {
@@ -34,7 +36,7 @@ const statusBadge = (status: UserRow["status"]) => {
 };
 
 export default function UsersPage() {
-  const router = useRouter(); // Initialize router
+  const router = useRouter();
   const [users, setUsers] = useState<UserRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -49,8 +51,8 @@ export default function UsersPage() {
   const [filterPanelOpen, setFilterPanelOpen] = useState(false);
   const [filterAnchorRect, setFilterAnchorRect] = useState<DOMRect | null>(null);
   const [filterFocus, setFilterFocus] = useState<keyof FilterValues | null>(null);
-  const [actionsOpen, setActionsOpen] = useState<number | null>(null); // State for dropdown
-  const wrapperRef = useRef<HTMLDivElement>(null); // Ref for outside click handling
+  const [actionsOpen, setActionsOpen] = useState<number | null>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -92,9 +94,15 @@ export default function UsersPage() {
   const filtered = useMemo(() => {
     return users.filter((u) => {
       if (statusFilter !== "all" && u.status !== statusFilter) return false;
-      if (orgFilter && !u.organization.toLowerCase().includes(orgFilter.toLowerCase()))
+      if (
+        orgFilter &&
+        !u.organization.toLowerCase().includes(orgFilter.toLowerCase())
+      )
         return false;
-      if (usernameFilter && !u.username.toLowerCase().includes(usernameFilter.toLowerCase()))
+      if (
+        usernameFilter &&
+        !u.username.toLowerCase().includes(usernameFilter.toLowerCase())
+      )
         return false;
       if (emailFilter && !u.email.toLowerCase().includes(emailFilter.toLowerCase()))
         return false;
@@ -103,7 +111,15 @@ export default function UsersPage() {
       if (dateFilter && u.date_joined !== dateFilter) return false;
       return true;
     });
-  }, [users, orgFilter, usernameFilter, emailFilter, phoneFilter, statusFilter, dateFilter]);
+  }, [
+    users,
+    orgFilter,
+    usernameFilter,
+    emailFilter,
+    phoneFilter,
+    statusFilter,
+    dateFilter,
+  ]);
 
   const total = filtered.length;
   const totalPages = Math.max(1, Math.ceil(total / perPage));
@@ -121,10 +137,13 @@ export default function UsersPage() {
     } catch {
       // noop
     }
-    router.push(`/dashboard/users/${user.id}`); // Navigate to details page
+    router.push(`/dashboard/users/${user.id}`);
   };
 
-  const handleFunnelClick = (e: React.MouseEvent<HTMLElement>, field?: keyof FilterValues | null) => {
+  const handleFunnelClick = (
+    e: React.MouseEvent<HTMLElement>,
+    field?: keyof FilterValues | null
+  ) => {
     e.stopPropagation();
     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
     if (filterPanelOpen && filterFocus === field) {
@@ -137,10 +156,13 @@ export default function UsersPage() {
     setFilterPanelOpen(true);
   };
 
-  // Handle outside clicks to close dropdown
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node) && actionsOpen !== null) {
+      if (
+        wrapperRef.current &&
+        !wrapperRef.current.contains(event.target as Node) &&
+        actionsOpen !== null
+      ) {
         setActionsOpen(null);
       }
     };
@@ -159,30 +181,43 @@ export default function UsersPage() {
 
   if (error) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh] text-red-500">Error: {error}</div>
+      <div className="flex items-center justify-center min-h-[60vh] text-red-500">
+        Error: {error}
+      </div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6" ref={wrapperRef}>
+    <div
+      className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6"
+      ref={wrapperRef}
+    >
       <div className="mb-4">
-        <h2 className="text-base sm:text-lg text-slate-700 font-medium">Users</h2>
+        <h1 className="text-lg sm:text-xl font-semibold text-slate-800">Users</h1>
       </div>
-      {/* ✅ Replace inline grid with component */}
       <StatsGrid stats={stats} />
+
+      {/* ✅ Desktop table */}
       <FilterableUsersTable
         visible={visible}
         statusBadge={statusBadge}
         onSaveAndNavigate={handleSaveAndNavigate}
         onFunnelClick={handleFunnelClick}
       />
+
+      {/* ✅ Mobile cards */}
       <div className="md:hidden space-y-3">
         {visible.map((user) => (
-          <article key={user.id} className="bg-white p-4 rounded-lg border shadow-sm relative">
+          <article
+            key={user.id}
+            className="bg-white p-4 rounded-lg border shadow-sm relative"
+          >
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <div className="text-xs text-slate-500">ORGANIZATION</div>
-                <div className="text-sm font-medium text-slate-800 truncate">{user.organization}</div>
+                <div className="text-sm font-medium text-slate-800 truncate">
+                  {user.organization}
+                </div>
               </div>
               <div className="relative">
                 <button
@@ -202,7 +237,7 @@ export default function UsersPage() {
                   >
                     <button
                       onClick={() => {
-                        handleSaveAndNavigate(user); // Navigate to details page
+                        handleSaveAndNavigate(user);
                         setActionsOpen(null);
                       }}
                       className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -231,26 +266,32 @@ export default function UsersPage() {
                 )}
               </div>
             </div>
+
             <div className="mt-3 grid grid-cols-2 gap-2 text-sm text-slate-600">
               <div>
                 <div className="text-xs text-slate-500">USERNAME</div>
-                <Link
-                  href={`/dashboard/users/${user.id}`}
+                {/* ✅ Changed Link → button */}
+                <button
                   onClick={() => handleSaveAndNavigate(user)}
-                  className="text-sky-600 hover:underline text-sm font-medium truncate"
+                  className="text-sky-600 hover:underline text-sm font-medium truncate text-left"
                 >
                   {user.username}
-                </Link>
+                </button>
               </div>
               <div>
                 <div className="text-xs text-slate-500">PHONE</div>
-                <div className="text-sm text-slate-600 whitespace-nowrap truncate">{user.phone}</div>
+                <div className="text-sm text-slate-600 whitespace-nowrap truncate">
+                  {user.phone}
+                </div>
               </div>
               <div className="col-span-2">
                 <div className="text-xs text-slate-500">EMAIL</div>
-                <div className="text-sm text-slate-600 truncate">{user.email}</div>
+                <div className="text-sm text-slate-600 truncate">
+                  {user.email}
+                </div>
               </div>
             </div>
+
             <div className="mt-3 flex items-center justify-between">
               <div className={statusBadge(user.status)}>{user.status}</div>
               <div className="text-xs text-slate-500">{user.date_joined}</div>
@@ -258,10 +299,13 @@ export default function UsersPage() {
           </article>
         ))}
       </div>
+
+      {/* ✅ Pagination */}
       <div className="px-2 sm:px-5 py-3 border-t mt-4">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div className="text-sm text-slate-600">
-            Showing <span className="font-medium">{start}</span> to <span className="font-medium">{end}</span> of{" "}
+            Showing <span className="font-medium">{start}</span> to{" "}
+            <span className="font-medium">{end}</span> of{" "}
             <span className="font-medium">{total}</span>
           </div>
           <div className="flex items-center gap-3">
@@ -296,13 +340,18 @@ export default function UsersPage() {
                     <button
                       key={num}
                       onClick={() => setPage(num)}
-                      className={`px-2 py-1 text-sm rounded ${num === page ? "bg-teal-500 text-white" : "bg-white border"}`}
+                      className={`px-2 py-1 text-sm rounded ${num === page
+                          ? "bg-teal-500 text-white"
+                          : "bg-white border"
+                        }`}
                     >
                       {num}
                     </button>
                   );
                 })}
-                {totalPages > 7 && <span className="px-2 text-sm text-slate-400">…</span>}
+                {totalPages > 7 && (
+                  <span className="px-2 text-sm text-slate-400">…</span>
+                )}
               </div>
               <button
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
@@ -316,6 +365,8 @@ export default function UsersPage() {
           </div>
         </div>
       </div>
+
+      {/* ✅ Filter panel */}
       <FilterPanel
         open={filterPanelOpen}
         anchorRect={filterAnchorRect}

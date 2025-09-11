@@ -1,5 +1,3 @@
-/* styles/Login.module.scss */
-
 $teal: #2ac7bf;
 $muted: #64748b;
 $input-border: #e6eef0;
@@ -8,8 +6,11 @@ $page-pad: 64px;
 .loginContainer {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  height: 100vh;
+  height: 100vh; /* Fixed viewport height */
   min-height: 640px;
+  overflow: hidden; /* Prevent scrolling */
+  width: 100%;
+  background-color: #f5f5f5; /* Optional: light background */
 }
 
 /* LEFT */
@@ -35,10 +36,13 @@ $page-pad: 64px;
   align-items: center;
   margin-top: 12vh;
 }
+
 .illustration {
   max-width: 540px;
   width: 100%;
   height: auto;
+  max-height: 70vh; /* Constrain to fit within viewport */
+  object-fit: contain; /* Scale while preserving aspect ratio */
 }
 
 /* RIGHT */
@@ -49,15 +53,17 @@ $page-pad: 64px;
   background: #ffffff;
 }
 
-/* Card: text align left now */
+/* Card: text align left, dynamic height */
 .card {
   width: 704px;
-  height: 900px;
   padding: 120px 90px 90px;
   border-radius: 10px;
   position: relative;
   text-align: left;
   background: #ffffff;
+  max-height: 100%; /* Fit within parent */
+  overflow-y: auto; /* Allow internal scrolling if content overflows */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Consistent shadow */
 }
 
 /* titles: they will be left aligned inside the card */
@@ -69,6 +75,7 @@ $page-pad: 64px;
   color: #213F7D;
   text-align: left;
 }
+
 .subtitle {
   margin-bottom: 24px;
   color: $muted;
@@ -93,11 +100,11 @@ $page-pad: 64px;
 
 /* INPUTS: taller and reserve right padding for SHOW/HIDE */
 .input {
-  height: 56px;              /* <-- increased height */
+  height: 56px; /* Increased height */
   border-radius: 8px;
   border: 1px solid $input-border;
   padding: 0 20px;
-  padding-right: 88px;       /* <-- reserve space for button inside input */
+  padding-right: 88px; /* Reserve space for button inside input */
   font-size: 14px;
   outline: none;
   transition: box-shadow .12s, border-color .12s;
@@ -105,6 +112,7 @@ $page-pad: 64px;
   width: 100%;
   background: #fff;
 }
+
 .input:focus {
   box-shadow: 0 0 0 4px rgba(42,199,191,0.08);
   border-color: $teal;
@@ -118,7 +126,7 @@ $page-pad: 64px;
 /* SHOW/HIDE inside the field, vertically centered */
 .showBtn {
   position: absolute;
-  right: 12px;                /* sits inside the input right edge */
+  right: 12px; /* Sits inside the input right edge */
   top: 50%;
   transform: translateY(-50%);
   background: transparent;
@@ -154,7 +162,31 @@ $page-pad: 64px;
 
 /* responsive */
 @media (max-width: 900px) {
-  .loginContainer { grid-template-columns: 1fr; }
-  .left { display: none; }
-  .card { margin: 36px auto; }
+  .loginContainer {
+    grid-template-columns: 1fr;
+    height: auto; /* Allow height to adjust */
+    min-height: 100vh; /* Fill viewport vertically */
+  }
+
+  .left {
+    display: none;
+  }
+
+  .right {
+    width: 100%;
+    padding: $page-pad;
+  }
+
+  .card {
+    width: 100%;
+    max-width: 400px; /* Limit width on mobile */
+    margin: 36px auto;
+    padding: 60px 40px; /* Reduced padding for mobile */
+    max-height: 80vh; /* Constrain height on mobile */
+    overflow-y: auto; /* Allow internal scrolling if needed */
+  }
+
+  .illustration {
+    max-height: 40vh; /* Reduce illustration height on mobile */
+  }
 }
