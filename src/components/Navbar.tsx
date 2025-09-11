@@ -146,29 +146,22 @@ export const Navbar: React.FC = () => {
             </NavigationMenu>
           </div>
 
-          {/* Mobile Right */}
+          {/* Mobile Right: avatar opens slide-over */}
           <div className={styles.mobileWrap}>
             <button
               type="button"
-              aria-label="Open menu"
+              aria-label="Open profile menu"
               aria-expanded={mobileOpen}
               onClick={() => setMobileOpen(true)}
-              className={styles.mobileToggle}
+              className={styles.mobileAvatarBtn}
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className={styles.iconHamburger}
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
-              </svg>
+              <Image
+                src="/images/Avatar.png"
+                alt="User Avatar"
+                width={44}
+                height={44}
+                className={styles.avatar}
+              />
             </button>
           </div>
         </div>
