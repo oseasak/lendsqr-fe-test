@@ -12,9 +12,9 @@ export type ProfileUser = {
 
 type ProfileCardProps = {
   user: ProfileUser;
-  balance?: string;      // e.g. "₦200,000.00"
-  bankInfo?: string;     // e.g. "08123456789 / Providus Bank"
-  tier?: number;         // 0..3 (how many stars are filled)
+  balance?: string;   // e.g. "₦200,000.00"
+  bankInfo?: string;  // e.g. "08123456789 / Providus Bank"
+  tier?: number;      // 0..3 (how many stars are filled)
 };
 
 export default function ProfileCard({
@@ -26,8 +26,9 @@ export default function ProfileCard({
   const initials = React.useMemo(() => {
     if (user?.fullName) {
       return user.fullName
-        .split(" ")
-        .map((s) => s[0])
+        .trim()
+        .split(/\s+/)
+        .map((s) => s[0] || "")
         .slice(0, 2)
         .join("")
         .toUpperCase();
@@ -62,7 +63,8 @@ export default function ProfileCard({
               {Array.from({ length: 3 }).map((_, i) => (
                 <Star
                   key={i}
-                  className={`h-4 w-4 ${i < tier ? "text-amber-400" : "text-amber-200"}`}
+                  className={`h-4 w-4 ${i < (tier ?? 0) ? "text-amber-400" : "text-amber-200"}`}
+                  fill="currentColor"
                 />
               ))}
             </div>

@@ -20,6 +20,7 @@ import {
   Menu,
   Building2,
   ClipboardList,
+  LucideIcon, // ✅ import proper type for icons
 } from "lucide-react";
 import Image from "next/image";
 import styles from "../styles/Sidebar.module.scss";
@@ -28,7 +29,7 @@ type Item = {
   id: string;
   href: string;
   label: string;
-  Icon: React.ComponentType<any>;
+  Icon: LucideIcon; // ✅ replaced React.ComponentType<any>
 };
 
 type Section = {

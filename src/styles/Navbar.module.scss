@@ -1,3 +1,5 @@
+@use "sass:color";
+
 /* Navbar.module.scss */
 
 /* tokens */
@@ -73,7 +75,8 @@ $shadow: 0 6px 20px rgba(2,6,23,0.08);
   font-size: 0.875rem;
   font-weight: 600;
 }
-.docsLink:hover { color: darken($muted, 15%); }
+/* replaced darken -> color.adjust */
+.docsLink:hover { color: color.adjust($muted, $lightness: -15%); }
 
 /* notification button */
 .notifButton {
@@ -143,7 +146,9 @@ $shadow: 0 6px 20px rgba(2,6,23,0.08);
   text-decoration: none;
   font-size: 0.95rem;
 }
-.menuLink:hover { color: darken($text, 6%); }
+/* replaced darken -> color.adjust */
+.menuLink:hover { color: color.adjust($text, $lightness: -6%); }
+
 .menuLogout {
   color: #dc2626;
   background: transparent;
@@ -152,7 +157,8 @@ $shadow: 0 6px 20px rgba(2,6,23,0.08);
   cursor: pointer;
   font-size: 0.95rem;
 }
-.menuLogout:hover { color: darken(#dc2626, 6%); }
+/* replaced darken -> color.adjust */
+.menuLogout:hover { color: color.adjust(#dc2626, $lightness: -6%); }
 
 /* mobile header + controls */
 .mobileWrap {
@@ -248,7 +254,8 @@ $shadow: 0 6px 20px rgba(2,6,23,0.08);
   padding: 0;
   font-size: 1rem;
 }
-.panelButton:hover { color: darken($text, 6%); }
+/* replaced darken -> color.adjust */
+.panelButton:hover { color: color.adjust($text, $lightness: -6%); }
 
 .panelLogout {
   background: transparent;
@@ -257,4 +264,5 @@ $shadow: 0 6px 20px rgba(2,6,23,0.08);
   font-weight: 600;
   cursor: pointer;
 }
-.panelLogout:hover { color: darken(#dc2626, 6%); }
+/* replaced darken -> color.adjust */
+.panelLogout:hover { color: color.adjust(#dc2626, $lightness: -6%); }

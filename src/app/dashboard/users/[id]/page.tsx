@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import ProfileCard from "@/components/ProfileCard";
 import { useParams, useRouter } from "next/navigation";
-import { ChevronLeft, Star } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import styles from "./UserDetails.module.scss";
 
 type StoredUser = {
@@ -50,9 +50,14 @@ const TABS: { id: string; label: string }[] = [
 ];
 
 export default function UserDetails() {
-  const params = useParams();
+  const params = useParams() as { id?: string | string[] | undefined };
   const router = useRouter();
-  const id = (params as any)?.id?.toString?.() ?? "unknown";
+
+  const id = (() => {
+    const raw = params?.id;
+    if (!raw) return "unknown";
+    return Array.isArray(raw) ? raw[0] : raw;
+  })();
 
   const [user, setUser] = useState<StoredUser | null>(null);
   const [activeTab, setActiveTab] = useState<string>("general");
@@ -64,7 +69,7 @@ export default function UserDetails() {
       const stored =
         typeof window !== "undefined" ? localStorage.getItem(`user-${id}`) : null;
       if (stored) {
-        const parsed = JSON.parse(stored);
+        const parsed = JSON.parse(stored) as Partial<StoredUser>;
         setUser({
           id: parsed.id ?? id,
           organization: parsed.organization ?? "Lendsqr",
@@ -82,11 +87,9 @@ export default function UserDetails() {
           educationLevel: parsed.educationLevel ?? "B.Sc",
           employmentStatus: parsed.employmentStatus ?? "Employed",
           sector: parsed.sector ?? "FinTech",
-          durationOfEmployment:
-            parsed.durationOfEmployment ?? "2 years",
+          durationOfEmployment: parsed.durationOfEmployment ?? "2 years",
           officeEmail: parsed.officeEmail ?? "grace@lendsqr.com",
-          monthlyIncome:
-            parsed.monthlyIncome ?? "₦200,000 - ₦400,000",
+          monthlyIncome: parsed.monthlyIncome ?? "₦200,000 - ₦400,000",
           loanRepayment: parsed.loanRepayment ?? "40,000",
           socials:
             parsed.socials ?? {
@@ -109,7 +112,7 @@ export default function UserDetails() {
                 relationship: "Sister",
               },
             ],
-        } as StoredUser);
+        });
       } else {
         setUser({
           id,
@@ -154,42 +157,42 @@ export default function UserDetails() {
         });
       }
     } catch (err) {
-      console.error(err);
+      console.warn("Failed to load stored user:", err);
       setUser(null);
     } finally {
       setLoading(false);
     }
   }, [id]);
 
-  const statusBadge = (status?: string) => {
-    if (status === "active")
-      return styles.badgeActive;
-    if (status === "inactive")
-      return styles.badgeInactive;
-    if (status === "pending")
-      return styles.badgePending;
+  const getStatusBadgeClass = (status?: StoredUser["status"]) => {
+    if (status === "active") return styles.badgeActive;
+    if (status === "inactive") return styles.badgeInactive;
+    if (status === "pending") return styles.badgePending;
     return styles.badgeDefault;
   };
 
   const handleBlacklist = () => {
     if (!user) return;
-    const next = { ...user, status: "inactive" };
+    const next = { ...user, status: "inactive" as const };
     setUser(next);
     try {
       localStorage.setItem(`user-${id}`, JSON.stringify(next));
-    } catch {}
+    } catch (err) {
+      console.warn("Failed to persist user to localStorage:", err);
+    }
   };
 
   const handleActivate = () => {
     if (!user) return;
-    const next = { ...user, status: "active" };
+    const next = { ...user, status: "active" as const };
     setUser(next);
     try {
       localStorage.setItem(`user-${id}`, JSON.stringify(next));
-    } catch {}
+    } catch (err) {
+      console.warn("Failed to persist user to localStorage:", err);
+    }
   };
 
-  // ---- NEW: smarter back handler that doesn't reload users page ----
   const handleBack = () => {
     if (typeof window !== "undefined") {
       const sameOriginRef =
@@ -214,32 +217,39 @@ export default function UserDetails() {
             strokeOpacity="0.15"
             strokeWidth="4"
           />
-          <path d="M22 12a10 10 0 0 1-10 10" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
+          <path
+            d="M22 12a10 10 0 0 1-10 10"
+            stroke="currentColor"
+            strokeWidth="4"
+            strokeLinecap="round"
+          />
         </svg>
       </div>
     );
   }
 
   if (!user) {
-    return (
-      <div className={styles.centerError}>User not found</div>
-    );
+    return <div className={styles.centerError}>User not found</div>;
   }
 
   return (
     <div className={styles.page}>
-      {/* Back link uses handleBack (no reload; tries history.back first) */}
       <button
         onClick={handleBack}
         className={styles.backBtn}
         aria-label="Back to previous page"
       >
-        <ChevronLeft className={styles.backIcon} /> Back to Users
+        {/* ✅ added fill="currentColor" */}
+        <ChevronLeft className={styles.backIcon} fill="currentColor" /> Back to Users
       </button>
 
-      {/* Page header + actions */}
       <div className={styles.header}>
-        <h1 className={styles.title}>User Details</h1>
+        <div className={styles.titleRow}>
+          <h1 className={styles.title}>User Details</h1>
+          <span className={`${styles.status} ${getStatusBadgeClass(user.status)}`}>
+            {String(user.status ?? "unknown").toUpperCase()}
+          </span>
+        </div>
 
         <div className={styles.actions}>
           <button
@@ -249,7 +259,6 @@ export default function UserDetails() {
           >
             BLACKLIST USER
           </button>
-
           <button
             onClick={handleActivate}
             className={`${styles.btn} ${styles.btnOutlineTeal}`}
@@ -260,7 +269,6 @@ export default function UserDetails() {
         </div>
       </div>
 
-      {/* Profile card (rest of layout unchanged) */}
       <div className={styles.panelShell}>
         <div className={styles.panelInner}>
           <ProfileCard
@@ -270,9 +278,7 @@ export default function UserDetails() {
             tier={2}
           />
 
-          {/* Responsive tabs: select on small screens, horizontal nav on larger */}
           <div className={styles.tabsWrap}>
-            {/* dropdown visible on small screens */}
             <label className={styles.tabSelectLabel} htmlFor="section-select" aria-hidden>
               Section
             </label>
@@ -290,7 +296,6 @@ export default function UserDetails() {
               ))}
             </select>
 
-            {/* desktop / tablet nav */}
             <nav className={styles.tabNav} role="tablist" aria-label="User detail sections">
               {TABS.map((t) => (
                 <Tab
@@ -368,7 +373,7 @@ export default function UserDetails() {
             </section>
           ) : (
             <div className={styles.notImplemented}>
-              Content for "{activeTab}" is not implemented in this demo.
+              Content for &quot;{activeTab}&quot; is not implemented in this demo.
             </div>
           )}
         </div>
@@ -392,6 +397,7 @@ function Tab({
 }) {
   return (
     <button
+      type="button" // ✅ prevent accidental form submit
       onClick={onClick}
       className={`${styles.tab} ${active ? styles.tabActive : ""}`}
       aria-current={active ? "page" : undefined}
