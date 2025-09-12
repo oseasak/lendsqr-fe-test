@@ -41,7 +41,6 @@ $shadow: 0 6px 20px rgba(2,6,23,0.08);
 /* -------------------------------------------------------------------------- */
 .desktop { display: none; }
 
-/* desktop (and tablet) shows the sidebar */
 @media (min-width: 768px) {
   .desktop { display: flex; position: relative; }
 }
@@ -75,17 +74,23 @@ $shadow: 0 6px 20px rgba(2,6,23,0.08);
   padding: 0.5rem 0.5rem 1.25rem 0.5rem;
   flex: 1 1 auto;
 
-  /* allow nav content to scroll if viewport is short */
-  max-height: calc(100vh - 6.5rem); /* reserve space for header + footer */
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
+  /* desktop: no forced max-height */
+  overflow-y: visible;
 }
 
-/* visually helpful scrollbar styling (light) */
-.nav::-webkit-scrollbar { width: 8px; }
-.nav::-webkit-scrollbar-thumb {
-  background: rgba(0,0,0,0.06);
-  border-radius: 6px;
+/* only add scroll behavior on smaller viewports */
+@media (max-width: 1024px) {
+  .nav {
+    max-height: calc(100vh - 6.5rem); /* space for header + footer */
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .nav::-webkit-scrollbar { width: 8px; }
+  .nav::-webkit-scrollbar-thumb {
+    background: rgba(0,0,0,0.06);
+    border-radius: 6px;
+  }
 }
 
 /* section heading */
@@ -137,7 +142,7 @@ $shadow: 0 6px 20px rgba(2,6,23,0.08);
   color: #374151;
 }
 
-/* label: animate opacity and max-width so collapse looks smooth */
+/* label */
 .label {
   display: inline-block;
   max-width: calc(var(--sidebar-width, #{$sidebar-expanded}) - 96px);
@@ -149,28 +154,28 @@ $shadow: 0 6px 20px rgba(2,6,23,0.08);
   opacity: 1;
 }
 .hiddenLabel {
-  /* used while collapsed; keep space collapse smooth */
   opacity: 0;
   max-width: 0;
   margin: 0;
   pointer-events: none;
 }
 
-/* when the sidebar is collapsed, center icons and hide labels */
 .collapsed {
   .iconWrap { margin-left: 0; margin-right: 0; }
   .label { opacity: 0; max-width: 0; pointer-events: none; }
 }
 
-/* active item style (optional) */
 .active {
   background: color.adjust($bg, $lightness: -2%);
   font-weight: 600;
 }
 
-/* footer */
+/* -------------------------------------------------------------------------- */
+/* Footer stays pinned at bottom                                               */
+/* -------------------------------------------------------------------------- */
 .footer {
   padding: 0.75rem;
+  margin-top: auto; /* push footer to bottom */
 }
 .signOut {
   display: flex;
@@ -187,7 +192,7 @@ $shadow: 0 6px 20px rgba(2,6,23,0.08);
 .signOut:hover { background: $hover-bg; }
 
 /* -------------------------------------------------------------------------- */
-/* Mobile area / Drawer (mobile-only UI)                                       */
+/* Mobile Drawer                                                               */
 /* -------------------------------------------------------------------------- */
 .mobile { display: block; }
 @media (min-width: 768px) { .mobile { display: none; } }
@@ -209,24 +214,19 @@ $shadow: 0 6px 20px rgba(2,6,23,0.08);
 }
 .mobileToggle:hover { background: $hover-bg; }
 
-/* Drawer overlay (full screen) */
 .drawerOverlay {
   position: fixed;
   inset: 0;
   z-index: 50;
   display: flex;
   align-items: stretch;
-  justify-content: flex-end; /* drawer slides in from right by default */
+  justify-content: flex-end;
 }
-
-/* backdrop covers the page */
 .backdrop {
   position: absolute;
   inset: 0;
   background: rgba(0,0,0,0.4);
 }
-
-/* the drawer panel */
 .drawer {
   position: relative;
   z-index: 60;
@@ -235,13 +235,10 @@ $shadow: 0 6px 20px rgba(2,6,23,0.08);
   box-shadow: 0 5px 20px rgba(2,6,23,0.15);
   height: 100vh;
   overflow-y: auto;
-
-  /* start off-screen and slide in using transform when the component mounts */
   transform: translateX(0);
   transition: transform 220ms cubic-bezier(.2,.9,.2,1);
 }
 
-/* drawer header/nav */
 .drawerHeader {
   display: flex;
   align-items: center;
@@ -284,9 +281,6 @@ $shadow: 0 6px 20px rgba(2,6,23,0.08);
 }
 .drawerSignOut:hover { background: $hover-bg; }
 
-/* -------------------------------------------------------------------------- */
-/* Accessibility helpers & small visuals                                      */
-/* -------------------------------------------------------------------------- */
 .link:focus-visible,
 .drawerLink:focus-visible {
   outline: none;
@@ -294,11 +288,6 @@ $shadow: 0 6px 20px rgba(2,6,23,0.08);
   border-radius: 6px;
 }
 
-/* collapse behaviour for very wide screens — optionally use a slightly larger width */
 @media (min-width: 1280px) {
-  .expanded { --sidebar-width: 280px; } /* larger expanded width on very wide displays */
+  .expanded { --sidebar-width: 280px; }
 }
-
-/* -------------------------------------------------------------------------- */
-/* End of file                                                                 */
-/* -------------------------------------------------------------------------- */

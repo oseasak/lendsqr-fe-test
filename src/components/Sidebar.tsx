@@ -26,6 +26,7 @@ import {
   ClipboardCheck,
   ChevronDown,
   LogOut,
+  LucideIcon, // ✅ type-safe icons
 } from "lucide-react";
 import styles from "../styles/Sidebar.module.scss";
 
@@ -33,7 +34,7 @@ type Item = {
   id: string;
   href: string;
   label: string;
-  Icon: any;
+  Icon: LucideIcon;
   dropdown?: boolean;
   active?: boolean;
 };
@@ -48,7 +49,13 @@ const SECTIONS: Section[] = [
   {
     id: "general",
     items: [
-      { id: "switch-organization", href: "#", label: "Switch Organization", Icon: Briefcase, dropdown: true },
+      {
+        id: "switch-organization",
+        href: "#",
+        label: "Switch Organization",
+        Icon: Briefcase,
+        dropdown: true,
+      },
       { id: "dashboard", href: "/dashboard", label: "Dashboard", Icon: Home },
     ],
   },
@@ -56,7 +63,13 @@ const SECTIONS: Section[] = [
     id: "customers",
     title: "CUSTOMERS",
     items: [
-      { id: "users", href: "/dashboard/users", label: "Users", Icon: Users, active: true },
+      {
+        id: "users",
+        href: "/dashboard/users",
+        label: "Users",
+        Icon: Users,
+        active: true,
+      },
       { id: "guarantors", href: "/dashboard/guarantors", label: "Guarantors", Icon: Shield },
       { id: "loans", href: "/dashboard/loans", label: "Loans", Icon: PiggyBank },
       { id: "decision-models", href: "/dashboard/decision-models", label: "Decision Models", Icon: Eye },
@@ -93,27 +106,33 @@ const SECTIONS: Section[] = [
 ];
 
 type SidebarProps = {
-  // desktop collapsed state (controlled externally if you want)
-  collapsed?: boolean;
-  // mobile drawer open
-  open?: boolean;
-  // close handler for mobile drawer
-  onClose?: () => void;
+  collapsed?: boolean; // desktop collapsed state
+  open?: boolean; // mobile drawer open
+  onClose?: () => void; // close handler
 };
 
-export default function Sidebar({ collapsed = false, open = false, onClose }: SidebarProps) {
-  const containerClass = `${styles.sidebar} ${collapsed ? styles.collapsed : styles.expanded} ${styles.desktop}`;
+export default function Sidebar({
+  collapsed = false,
+  open = false,
+  onClose,
+}: SidebarProps) {
+  const containerClass = `${styles.sidebar} ${
+    collapsed ? styles.collapsed : styles.expanded
+  } ${styles.desktop}`;
 
   return (
     <>
-      {/* Desktop sidebar — controlled by collapsed prop */}
+      {/* Desktop sidebar */}
       <aside className={containerClass} aria-label="Sidebar">
-
         <nav className={styles.nav} aria-label="Main navigation">
           {SECTIONS.map((section) => (
             <div key={section.id} className={styles.section}>
               {section.title && (
-                <div className={`${styles.sectionTitle} ${collapsed ? styles.hiddenLabel : ""}`}>
+                <div
+                  className={`${styles.sectionTitle} ${
+                    collapsed ? styles.hiddenLabel : ""
+                  }`}
+                >
                   {section.title}
                 </div>
               )}
@@ -121,14 +140,25 @@ export default function Sidebar({ collapsed = false, open = false, onClose }: Si
               <ul className={styles.list}>
                 {section.items.map((it) => (
                   <li key={it.id}>
-                    <Link href={it.href} className={`${styles.link} ${it.active ? styles.active : ""}`}>
+                    <Link
+                      href={it.href}
+                      className={`${styles.link} ${
+                        it.active ? styles.active : ""
+                      }`}
+                    >
                       <span className={styles.iconWrap}>
                         <it.Icon className={styles.icon} aria-hidden />
                       </span>
-                      <span className={`${styles.label} ${collapsed ? styles.hiddenLabel : ""}`}>
+                      <span
+                        className={`${styles.label} ${
+                          collapsed ? styles.hiddenLabel : ""
+                        }`}
+                      >
                         {it.label}
                       </span>
-                      {it.dropdown && <ChevronDown className={styles.icon} aria-hidden />}
+                      {it.dropdown && (
+                        <ChevronDown className={styles.icon} aria-hidden />
+                      )}
                     </Link>
                   </li>
                 ))}
@@ -140,23 +170,44 @@ export default function Sidebar({ collapsed = false, open = false, onClose }: Si
         <div className={styles.footer}>
           <button className={styles.signOut}>
             <LogOut className={styles.icon} aria-hidden />
-            <span className={`${styles.label} ${collapsed ? styles.hiddenLabel : ""}`}>Sign Out</span>
+            <span
+              className={`${styles.label} ${
+                collapsed ? styles.hiddenLabel : ""
+              }`}
+            >
+              Sign Out
+            </span>
           </button>
         </div>
       </aside>
 
-      {/* Mobile drawer — this is controlled exclusively by the parent via `open` prop */}
+      {/* Mobile drawer */}
       {open && (
-        <div id="mobile-sidebar" className={styles.drawerOverlay} role="dialog" aria-modal="true">
+        <div
+          id="mobile-sidebar"
+          className={styles.drawerOverlay}
+          role="dialog"
+          aria-modal="true"
+        >
           <div className={styles.backdrop} onClick={() => onClose?.()} />
 
-          <aside className={styles.drawer} aria-label="Mobile sidebar">
+          {/* ✅ slides in from right */}
+          <aside className={`${styles.drawer} ${styles.drawerRight}`} aria-label="Mobile sidebar">
             <div className={styles.drawerHeader}>
               <Link href="/dashboard" onClick={() => onClose?.()}>
-                <Image src="/images/logo.png" alt="logo" width={140} height={28} />
+                <Image
+                  src="/images/logo.png"
+                  alt="logo"
+                  width={140}
+                  height={28}
+                />
               </Link>
 
-              <button onClick={() => onClose?.()} className={styles.closeBtn} aria-label="Close menu">
+              <button
+                onClick={() => onClose?.()}
+                className={styles.closeBtn}
+                aria-label="Close menu"
+              >
                 ✕
               </button>
             </div>
@@ -164,18 +215,24 @@ export default function Sidebar({ collapsed = false, open = false, onClose }: Si
             <nav className={styles.drawerNav}>
               {SECTIONS.map((section) => (
                 <div key={section.id} className={styles.section}>
-                  {section.title && <div className={styles.sectionTitle}>{section.title}</div>}
+                  {section.title && (
+                    <div className={styles.sectionTitle}>{section.title}</div>
+                  )}
                   <ul className={styles.list}>
                     {section.items.map((it) => (
                       <li key={it.id}>
                         <Link
                           href={it.href}
-                          className={`${styles.drawerLink} ${it.active ? styles.active : ""}`}
+                          className={`${styles.drawerLink} ${
+                            it.active ? styles.active : ""
+                          }`}
                           onClick={() => onClose?.()}
                         >
                           <it.Icon className={styles.icon} aria-hidden />
                           <span>{it.label}</span>
-                          {it.dropdown && <ChevronDown className={styles.icon} aria-hidden />}
+                          {it.dropdown && (
+                            <ChevronDown className={styles.icon} aria-hidden />
+                          )}
                         </Link>
                       </li>
                     ))}
@@ -183,7 +240,10 @@ export default function Sidebar({ collapsed = false, open = false, onClose }: Si
                 </div>
               ))}
 
-              <button className={styles.drawerSignOut} onClick={() => onClose?.()}>
+              <button
+                className={styles.drawerSignOut}
+                onClick={() => onClose?.()}
+              >
                 <LogOut className={styles.icon} aria-hidden />
                 <span>Sign Out</span>
               </button>

@@ -10,7 +10,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* mobile hamburger -> toggles sidebarOpen */}
+      {/* Navbar controls collapse + sidebar toggle */}
       <Navbar
         onToggleSidebar={() => setSidebarOpen((s) => !s)}
         onToggleCollapse={() => setCollapsed((c) => !c)}
@@ -18,8 +18,12 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       />
 
       <div className="flex">
-        {/* Sidebar controlled by parent */}
-        <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} collapsed={collapsed} />
+        {/* Sidebar */}
+        <Sidebar
+          open={sidebarOpen}
+          onClose={() => setSidebarOpen(false)}
+          collapsed={collapsed}
+        />
 
         {/* Main content area */}
         <main className="flex-1 p-6">{children}</main>
