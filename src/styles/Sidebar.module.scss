@@ -1,6 +1,4 @@
-/* Sidebar.module.scss */
 @use "sass:color";
-
 
 /* tokens */
 $border: #e5e7eb;
@@ -11,8 +9,11 @@ $hover-bg: #f8fafc;
 $sidebar-expanded: 240px; /* ~ w-60 */
 $sidebar-collapsed: 72px; /* ~ w-18 */
 $mobile-drawer-width: 288px;
+$shadow: 0 6px 20px rgba(2,6,23,0.08);
 
-/* Desktop only sidebar */
+/* -------------------------------------------------------------------------- */
+/* Sidebar root - participates in flex layout via --sidebar-width variable    */
+/* -------------------------------------------------------------------------- */
 .sidebar {
   background: $bg;
   border-right: 1px solid $border;
@@ -20,34 +21,43 @@ $mobile-drawer-width: 288px;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  transition: width 180ms ease-in-out;
+
+  /* ensure flex children layout properly in the page flex container */
+  flex: 0 0 var(--sidebar-width, $sidebar-expanded);
   width: var(--sidebar-width, $sidebar-expanded);
-  overflow: visible; /* ensures dropdowns are visible */
+
+  /* smooth transition for collapse/expand */
+  transition: flex-basis 180ms ease-in-out, width 180ms ease-in-out;
+  overflow: visible; /* dropdowns may overflow the sidebar */
+  position: relative;
 }
 
-/* width toggles via class on the element */
-.expanded {
-  --sidebar-width: $sidebar-expanded;
-}
+/* two helper classes set by the JS component */
+.expanded { --sidebar-width: $sidebar-expanded; }
+.collapsed { --sidebar-width: $sidebar-collapsed; }
 
-.collapsed {
-  --sidebar-width: $sidebar-collapsed;
-}
+/* -------------------------------------------------------------------------- */
+/* Visibility: Desktop vs Mobile                                               */
+/* -------------------------------------------------------------------------- */
+.desktop { display: none; }
 
-/* show on desktop only */
-.desktop {
-  display: none;
-}
+/* desktop (and tablet) shows the sidebar */
 @media (min-width: 768px) {
-  .desktop { display: flex; }
+  .desktop { display: flex; position: relative; }
 }
 
-/* header (toggle) */
+/* -------------------------------------------------------------------------- */
+/* Header / Logo area                                                          */
+/* -------------------------------------------------------------------------- */
 .header {
   padding: 1rem;
   display: flex;
   align-items: center;
   justify-content: flex-start;
+}
+.header :global(a) {
+  display: inline-flex;
+  align-items: center;
 }
 .toggle {
   background: transparent;
@@ -58,30 +68,38 @@ $mobile-drawer-width: 288px;
 }
 .toggle:hover { background: $hover-bg; }
 
-/* Nav */
+/* -------------------------------------------------------------------------- */
+/* Nav / content area                                                          */
+/* -------------------------------------------------------------------------- */
 .nav {
   padding: 0.5rem 0.5rem 1.25rem 0.5rem;
   flex: 1 1 auto;
-  /* no internal scrolling — content must fit or be reorganized */
+
+  /* allow nav content to scroll if viewport is short */
+  max-height: calc(100vh - 6.5rem); /* reserve space for header + footer */
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
-.section {
-  margin-bottom: 1rem;
+/* visually helpful scrollbar styling (light) */
+.nav::-webkit-scrollbar { width: 8px; }
+.nav::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.06);
+  border-radius: 6px;
 }
 
+/* section heading */
+.section { margin-bottom: 1rem; }
 .sectionTitle {
   padding: 0.35rem 0.75rem;
   font-size: 0.675rem;
   font-weight: 600;
   color: $muted;
+  letter-spacing: 0.02em;
 }
 
 /* list & link */
-.list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
+.list { list-style: none; padding: 0; margin: 0; }
 .link {
   display: flex;
   align-items: center;
@@ -90,11 +108,17 @@ $mobile-drawer-width: 288px;
   border-radius: 8px;
   color: $text;
   text-decoration: none;
+  transition: background 120ms ease, color 120ms ease;
 }
-.link:hover {
+.link:hover,
+.link:focus-visible {
   background: $hover-bg;
   color: color.adjust($text, $lightness: -6%);
-
+  outline: none;
+}
+.link:focus-visible {
+  box-shadow: 0 0 0 3px rgba(14,165,233,0.09);
+  border-radius: 8px;
 }
 
 /* icon wrapper and icon */
@@ -113,14 +137,35 @@ $mobile-drawer-width: 288px;
   color: #374151;
 }
 
-/* label (hidden on collapse) */
+/* label: animate opacity and max-width so collapse looks smooth */
 .label {
+  display: inline-block;
+  max-width: calc(var(--sidebar-width, #{$sidebar-expanded}) - 96px);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  vertical-align: middle;
+  transition: opacity 140ms ease, max-width 180ms ease, margin 120ms ease;
+  opacity: 1;
 }
 .hiddenLabel {
-  display: none;
+  /* used while collapsed; keep space collapse smooth */
+  opacity: 0;
+  max-width: 0;
+  margin: 0;
+  pointer-events: none;
+}
+
+/* when the sidebar is collapsed, center icons and hide labels */
+.collapsed {
+  .iconWrap { margin-left: 0; margin-right: 0; }
+  .label { opacity: 0; max-width: 0; pointer-events: none; }
+}
+
+/* active item style (optional) */
+.active {
+  background: color.adjust($bg, $lightness: -2%);
+  font-weight: 600;
 }
 
 /* footer */
@@ -137,19 +182,15 @@ $mobile-drawer-width: 288px;
   padding: 0.5rem 0.5rem;
   border-radius: 8px;
   cursor: pointer;
+  transition: background 120ms ease;
 }
 .signOut:hover { background: $hover-bg; }
 
-/* ---------------- */
-/* Mobile styles */
-/* ---------------- */
-
-.mobile {
-  display: block;
-}
-@media (min-width: 768px) {
-  .mobile { display: none; }
-}
+/* -------------------------------------------------------------------------- */
+/* Mobile area / Drawer (mobile-only UI)                                       */
+/* -------------------------------------------------------------------------- */
+.mobile { display: block; }
+@media (min-width: 768px) { .mobile { display: none; } }
 
 .mobileBar {
   display: flex;
@@ -168,19 +209,24 @@ $mobile-drawer-width: 288px;
 }
 .mobileToggle:hover { background: $hover-bg; }
 
-/* Drawer overlay */
+/* Drawer overlay (full screen) */
 .drawerOverlay {
   position: fixed;
   inset: 0;
   z-index: 50;
   display: flex;
   align-items: stretch;
+  justify-content: flex-end; /* drawer slides in from right by default */
 }
+
+/* backdrop covers the page */
 .backdrop {
   position: absolute;
   inset: 0;
   background: rgba(0,0,0,0.4);
 }
+
+/* the drawer panel */
 .drawer {
   position: relative;
   z-index: 60;
@@ -189,6 +235,10 @@ $mobile-drawer-width: 288px;
   box-shadow: 0 5px 20px rgba(2,6,23,0.15);
   height: 100vh;
   overflow-y: auto;
+
+  /* start off-screen and slide in using transform when the component mounts */
+  transform: translateX(0);
+  transition: transform 220ms cubic-bezier(.2,.9,.2,1);
 }
 
 /* drawer header/nav */
@@ -208,9 +258,7 @@ $mobile-drawer-width: 288px;
 }
 .closeBtn:hover { background: $hover-bg; }
 
-.drawerNav {
-  padding: 1rem;
-}
+.drawerNav { padding: 1rem; }
 .drawerLink {
   display: flex;
   gap: 0.75rem;
@@ -219,6 +267,7 @@ $mobile-drawer-width: 288px;
   border-radius: 6px;
   text-decoration: none;
   color: $text;
+  transition: background 120ms ease;
 }
 .drawerLink:hover { background: $hover-bg; }
 
@@ -234,3 +283,22 @@ $mobile-drawer-width: 288px;
   cursor: pointer;
 }
 .drawerSignOut:hover { background: $hover-bg; }
+
+/* -------------------------------------------------------------------------- */
+/* Accessibility helpers & small visuals                                      */
+/* -------------------------------------------------------------------------- */
+.link:focus-visible,
+.drawerLink:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(14,165,233,0.09);
+  border-radius: 6px;
+}
+
+/* collapse behaviour for very wide screens — optionally use a slightly larger width */
+@media (min-width: 1280px) {
+  .expanded { --sidebar-width: 280px; } /* larger expanded width on very wide displays */
+}
+
+/* -------------------------------------------------------------------------- */
+/* End of file                                                                 */
+/* -------------------------------------------------------------------------- */

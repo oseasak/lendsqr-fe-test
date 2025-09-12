@@ -12,11 +12,13 @@ $shadow: 0 6px 20px rgba(2,6,23,0.08);
 .navbar {
   width: 100%;
   background: $bg;
+  border-bottom: 1px solid color.adjust($bg, $lightness: -2%);
+  position: relative; // needed so dropdowns can be absolutely positioned relative to header
 }
 
 /* container mirrors max-w-7xl + horizontal padding */
 .container {
-  max-width: 1280px; /* Tailwind's 7xl ~ 1280px */
+  max-width: 1280px;
   margin: 0 auto;
   padding: 0 1rem;
 }
@@ -30,24 +32,52 @@ $shadow: 0 6px 20px rgba(2,6,23,0.08);
   padding: 0.75rem 0;
 }
 
-/* left/logo */
+/* left area: hamburger (mobile) + logo */
 .left {
   display: flex;
   align-items: center;
   gap: 0.75rem;
 }
+
+/* hamburger button (visible on mobile only) */
+.hamburgerBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem;
+  margin-right: 0.5rem;
+  border-radius: 6px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+
+  &:hover {
+    background: $hover-bg;
+  }
+
+  /* hide on medium+ screens */
+  @media (min-width: 768px) {
+    display: none;
+  }
+}
+
 .logoLink {
   display: inline-flex;
   align-items: center;
   text-decoration: none;
 }
 
-/* center: search */
+/* center: search (hidden on small screens to save space) */
 .center {
-  flex: 1 1 auto;
-  display: flex;
-  justify-content: center;
-  padding: 0 0.75rem;
+  display: none;
+}
+@media (min-width: 768px) {
+  .center {
+    display: flex;
+    flex: 1 1 auto;
+    justify-content: center;
+    padding: 0 0.75rem;
+  }
 }
 .searchWrap {
   width: 100%;
@@ -77,7 +107,7 @@ $shadow: 0 6px 20px rgba(2,6,23,0.08);
   color: color.adjust($muted, $lightness: -15%);
 }
 
-/* notification button */
+/* notification / small action button (also used for collapse toggle) */
 .notifButton {
   display: inline-flex;
   align-items: center;
@@ -99,7 +129,7 @@ $shadow: 0 6px 20px rgba(2,6,23,0.08);
   color: #374151;
 }
 
-/* NavigationMenu trigger styles */
+/* NavigationMenu trigger styles (desktop) */
 .navMenuTrigger {
   display: inline-flex;
   align-items: center;
@@ -142,7 +172,7 @@ $shadow: 0 6px 20px rgba(2,6,23,0.08);
   min-width: 150px;
 }
 
-/* menu list & items */
+/* menu list & items (shared) */
 .menuList {
   list-style: none;
   padding: 0;
@@ -151,28 +181,62 @@ $shadow: 0 6px 20px rgba(2,6,23,0.08);
   flex-direction: column;
   gap: 0.45rem;
 }
-.menuLink {
+
+.menuLink,
+.menuLogout {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 0.5rem;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  background: transparent;
   color: $text;
   text-decoration: none;
-  font-size: 0.95rem;
-}
-.menuLink:hover {
-  color: color.adjust($text, $lightness: -6%);
+  border: none;
+  cursor: pointer;
+
+  &:hover {
+    background: $hover-bg;
+  }
 }
 
 .menuLogout {
   color: #dc2626;
-  background: transparent;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  font-size: 0.95rem;
-}
-.menuLogout:hover {
-  color: color.adjust(#dc2626, $lightness: -6%);
+
+  &:hover {
+    color: color.adjust(#dc2626, $lightness: -6%);
+    background: $hover-bg;
+  }
 }
 
-/* overlay / slide panel */
+/* Mobile area (avatar + dropdown or slide panel) */
+.mobileWrap {
+  position: relative; // ✅ anchor dropdown
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* mobile avatar button */
+.mobileAvatarBtn {
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+/* hide mobile controls on desktop */
+@media (min-width: 768px) {
+  .mobileWrap {
+    display: none;
+  }
+}
+
+/* overlay / slide panel (if used elsewhere) */
 .mobileOverlay {
   position: fixed;
   inset: 0;
@@ -188,7 +252,7 @@ $shadow: 0 6px 20px rgba(2,6,23,0.08);
   background: rgba(0, 0, 0, 0.4);
 }
 
-/* slide panel */
+/* slide panel (used for a full mobile menu/drawer) */
 .slidePanel {
   position: relative;
   margin-left: auto;
@@ -274,19 +338,41 @@ $shadow: 0 6px 20px rgba(2,6,23,0.08);
   flex-direction: column;
 }
 
-/* Mobile avatar button (replaces hamburger) */
-.mobileAvatarBtn {
-  padding: 0;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-}
+/* --- Mobile profile dropdown (anchored to avatar) --- */
+.mobileProfileDropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 60;
+  min-width: 160px;
+  max-width: 90vw; // responsive safeguard
+  background: $bg;
+  border-radius: 8px;
+  padding: 0.5rem;
+  box-shadow: $shadow;
+  border: 1px solid $border;
 
-/* Hide mobile controls on desktop */
-@media (min-width: 768px) {
-  .mobileWrap {
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  // hidden on desktop
+  @media (min-width: 768px) {
     display: none;
   }
+}
+
+/* small accessibility focus outline helpers */
+.navMenuTrigger:focus-visible,
+.hamburgerBtn:focus-visible,
+.notifButton:focus-visible,
+.mobileAvatarBtn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(14,165,233,0.08);
+  border-radius: 6px;
 }

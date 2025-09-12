@@ -1,35 +1,41 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import Link from "next/link";
-import {
-  LayoutDashboard,
-  Users,
-  User,
-  Shield,
-  CreditCard,
-  Cpu,
-  PiggyBank,
-  Package,
-  Receipt,
-  Activity,
-  Hammer,
-  FileText,
-  Settings,
-  LogOut,
-  Menu,
-  Building2,
-  ClipboardList,
-  LucideIcon, // ✅ import proper type for icons
-} from "lucide-react";
 import Image from "next/image";
+import {
+  Briefcase,
+  Home,
+  Users,
+  Shield,
+  PiggyBank,
+  Eye,
+  Coins,
+  ClipboardList,
+  UserCheck,
+  UserX,
+  Building2,
+  HandCoins,
+  Receipt,
+  Settings,
+  UserCog,
+  ArrowRightLeft,
+  BarChart3,
+  Sliders,
+  BadgePercent,
+  ClipboardCheck,
+  ChevronDown,
+  LogOut,
+} from "lucide-react";
 import styles from "../styles/Sidebar.module.scss";
 
 type Item = {
   id: string;
   href: string;
   label: string;
-  Icon: LucideIcon; // ✅ replaced React.ComponentType<any>
+  Icon: any;
+  dropdown?: boolean;
+  active?: boolean;
 };
 
 type Section = {
@@ -42,21 +48,22 @@ const SECTIONS: Section[] = [
   {
     id: "general",
     items: [
-      { id: "dashboard", href: "/dashboard", label: "Dashboard", Icon: LayoutDashboard },
+      { id: "switch-organization", href: "#", label: "Switch Organization", Icon: Briefcase, dropdown: true },
+      { id: "dashboard", href: "/dashboard", label: "Dashboard", Icon: Home },
     ],
   },
   {
     id: "customers",
     title: "CUSTOMERS",
     items: [
-      { id: "users", href: "/dashboard/users", label: "Users", Icon: Users },
-      { id: "guarantors", href: "/dashboard/guarantors", label: "Guarantors", Icon: User },
-      { id: "loans", href: "/dashboard/loans", label: "Loans", Icon: CreditCard },
-      { id: "decision-models", href: "/dashboard/decision-models", label: "Decision Models", Icon: Cpu },
-      { id: "savings", href: "/dashboard/savings", label: "Savings", Icon: PiggyBank },
+      { id: "users", href: "/dashboard/users", label: "Users", Icon: Users, active: true },
+      { id: "guarantors", href: "/dashboard/guarantors", label: "Guarantors", Icon: Shield },
+      { id: "loans", href: "/dashboard/loans", label: "Loans", Icon: PiggyBank },
+      { id: "decision-models", href: "/dashboard/decision-models", label: "Decision Models", Icon: Eye },
+      { id: "savings", href: "/dashboard/savings", label: "Savings", Icon: Coins },
       { id: "loan-requests", href: "/dashboard/loan-requests", label: "Loan Requests", Icon: ClipboardList },
-      { id: "whitelist", href: "/dashboard/whitelist", label: "Whitelist", Icon: Shield },
-      { id: "karma", href: "/dashboard/karma", label: "Karma", Icon: Shield },
+      { id: "whitelist", href: "/dashboard/whitelist", label: "Whitelist", Icon: UserCheck },
+      { id: "karma", href: "/dashboard/karma", label: "Karma", Icon: UserX },
     ],
   },
   {
@@ -64,66 +71,43 @@ const SECTIONS: Section[] = [
     title: "BUSINESSES",
     items: [
       { id: "organization", href: "/dashboard/organization", label: "Organization", Icon: Building2 },
-      { id: "loan-products", href: "/dashboard/loan-products", label: "Loan Products", Icon: Package },
+      { id: "loan-products", href: "/dashboard/loan-products", label: "Loan Products", Icon: HandCoins },
       { id: "savings-products", href: "/dashboard/savings-products", label: "Savings Products", Icon: PiggyBank },
-      { id: "fees-charges", href: "/dashboard/fees-charges", label: "Fees and Charges", Icon: Receipt },
-      { id: "transactions", href: "/dashboard/transactions", label: "Transactions", Icon: Activity },
-      { id: "services", href: "/dashboard/services", label: "Services", Icon: Hammer },
-      { id: "service-account", href: "/dashboard/service-account", label: "Service Account", Icon: User },
-      { id: "settlements", href: "/dashboard/settlements", label: "Settlements", Icon: CreditCard },
-      { id: "reports", href: "/dashboard/reports", label: "Reports", Icon: FileText },
+      { id: "fees-charges", href: "/dashboard/fees-charges", label: "Fees and Charges", Icon: Coins },
+      { id: "transactions", href: "/dashboard/transactions", label: "Transactions", Icon: Receipt },
+      { id: "services", href: "/dashboard/services", label: "Services", Icon: Settings },
+      { id: "service-account", href: "/dashboard/service-account", label: "Service Account", Icon: UserCog },
+      { id: "settlements", href: "/dashboard/settlements", label: "Settlements", Icon: ArrowRightLeft },
+      { id: "reports", href: "/dashboard/reports", label: "Reports", Icon: BarChart3 },
     ],
   },
   {
     id: "settings",
     title: "SETTINGS",
     items: [
-      { id: "preferences", href: "/dashboard/preferences", label: "Preferences", Icon: Settings },
-      { id: "fees-pricing", href: "/dashboard/fees-pricing", label: "Fees and Pricing", Icon: Receipt },
-      { id: "audit-logs", href: "/dashboard/audit-logs", label: "Audit Logs", Icon: FileText },
+      { id: "preferences", href: "/dashboard/preferences", label: "Preferences", Icon: Sliders },
+      { id: "fees-pricing", href: "/dashboard/fees-pricing", label: "Fees and Pricing", Icon: BadgePercent },
+      { id: "audit-logs", href: "/dashboard/audit-logs", label: "Audit Logs", Icon: ClipboardCheck },
     ],
   },
 ];
 
-export default function Sidebar() {
-  const [collapsed, setCollapsed] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
+type SidebarProps = {
+  // desktop collapsed state (controlled externally if you want)
+  collapsed?: boolean;
+  // mobile drawer open
+  open?: boolean;
+  // close handler for mobile drawer
+  onClose?: () => void;
+};
 
-  // Persist collapsed state
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem("sidebar-collapsed");
-      if (saved !== null) setCollapsed(saved === "true");
-    } catch {
-      /* noop */
-    }
-  }, []);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem("sidebar-collapsed", String(collapsed));
-    } catch {
-      /* noop */
-    }
-  }, [collapsed]);
+export default function Sidebar({ collapsed = false, open = false, onClose }: SidebarProps) {
+  const containerClass = `${styles.sidebar} ${collapsed ? styles.collapsed : styles.expanded} ${styles.desktop}`;
 
   return (
     <>
-      {/* Desktop sidebar */}
-      <aside
-        className={`${styles.sidebar} ${collapsed ? styles.collapsed : styles.expanded} ${styles.desktop}`}
-        aria-label="Sidebar"
-      >
-        <div className={styles.header}>
-          <button
-            className={styles.toggle}
-            onClick={() => setCollapsed((c) => !c)}
-            aria-pressed={collapsed}
-            title={collapsed ? "Expand" : "Collapse"}
-          >
-            <Menu className={styles.icon} aria-hidden />
-          </button>
-        </div>
+      {/* Desktop sidebar — controlled by collapsed prop */}
+      <aside className={containerClass} aria-label="Sidebar">
 
         <nav className={styles.nav} aria-label="Main navigation">
           {SECTIONS.map((section) => (
@@ -137,13 +121,14 @@ export default function Sidebar() {
               <ul className={styles.list}>
                 {section.items.map((it) => (
                   <li key={it.id}>
-                    <Link href={it.href} className={styles.link}>
+                    <Link href={it.href} className={`${styles.link} ${it.active ? styles.active : ""}`}>
                       <span className={styles.iconWrap}>
                         <it.Icon className={styles.icon} aria-hidden />
                       </span>
                       <span className={`${styles.label} ${collapsed ? styles.hiddenLabel : ""}`}>
                         {it.label}
                       </span>
+                      {it.dropdown && <ChevronDown className={styles.icon} aria-hidden />}
                     </Link>
                   </li>
                 ))}
@@ -160,58 +145,52 @@ export default function Sidebar() {
         </div>
       </aside>
 
-      {/* Mobile header + drawer */}
-      <div className={styles.mobile}>
-        <div className={styles.mobileBar}>
-          <button
-            onClick={() => setMobileOpen(true)}
-            aria-label="Open menu"
-            className={styles.mobileToggle}
-          >
-            <Menu className={styles.icon} aria-hidden />
-          </button>
+      {/* Mobile drawer — this is controlled exclusively by the parent via `open` prop */}
+      {open && (
+        <div id="mobile-sidebar" className={styles.drawerOverlay} role="dialog" aria-modal="true">
+          <div className={styles.backdrop} onClick={() => onClose?.()} />
+
+          <aside className={styles.drawer} aria-label="Mobile sidebar">
+            <div className={styles.drawerHeader}>
+              <Link href="/dashboard" onClick={() => onClose?.()}>
+                <Image src="/images/logo.png" alt="logo" width={140} height={28} />
+              </Link>
+
+              <button onClick={() => onClose?.()} className={styles.closeBtn} aria-label="Close menu">
+                ✕
+              </button>
+            </div>
+
+            <nav className={styles.drawerNav}>
+              {SECTIONS.map((section) => (
+                <div key={section.id} className={styles.section}>
+                  {section.title && <div className={styles.sectionTitle}>{section.title}</div>}
+                  <ul className={styles.list}>
+                    {section.items.map((it) => (
+                      <li key={it.id}>
+                        <Link
+                          href={it.href}
+                          className={`${styles.drawerLink} ${it.active ? styles.active : ""}`}
+                          onClick={() => onClose?.()}
+                        >
+                          <it.Icon className={styles.icon} aria-hidden />
+                          <span>{it.label}</span>
+                          {it.dropdown && <ChevronDown className={styles.icon} aria-hidden />}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+
+              <button className={styles.drawerSignOut} onClick={() => onClose?.()}>
+                <LogOut className={styles.icon} aria-hidden />
+                <span>Sign Out</span>
+              </button>
+            </nav>
+          </aside>
         </div>
-
-        {mobileOpen && (
-          <div className={styles.drawerOverlay} role="dialog" aria-modal="true">
-            <div className={styles.backdrop} onClick={() => setMobileOpen(false)} />
-
-            <aside className={styles.drawer}>
-              <div className={styles.drawerHeader}>
-                <Link href="/dashboard" onClick={() => setMobileOpen(false)}>
-                  <Image src="/images/logo.png" alt="logo" width={140} height={28} />
-                </Link>
-                <button onClick={() => setMobileOpen(false)} className={styles.closeBtn} aria-label="Close menu">
-                  ✕
-                </button>
-              </div>
-
-              <nav className={styles.drawerNav}>
-                {SECTIONS.map((section) => (
-                  <div key={section.id} className={styles.section}>
-                    {section.title && <div className={styles.sectionTitle}>{section.title}</div>}
-                    <ul className={styles.list}>
-                      {section.items.map((it) => (
-                        <li key={it.id}>
-                          <Link href={it.href} className={styles.drawerLink} onClick={() => setMobileOpen(false)}>
-                            <it.Icon className={styles.icon} aria-hidden />
-                            <span>{it.label}</span>
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
-
-                <button className={styles.drawerSignOut} onClick={() => setMobileOpen(false)}>
-                  <LogOut className={styles.icon} aria-hidden />
-                  <span>Sign Out</span>
-                </button>
-              </nav>
-            </aside>
-          </div>
-        )}
-      </div>
+      )}
     </>
   );
 }
