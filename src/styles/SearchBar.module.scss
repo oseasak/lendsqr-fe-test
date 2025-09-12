@@ -1,0 +1,111 @@
+/* ------------------ Desktop / tablet search form ------------------ */
+.desktopForm {
+  display: none; /* hidden on mobile */
+  width: 100%;
+  max-width: 40rem;
+  align-items: center;
+
+  @media (min-width: 768px) {
+    display: flex; /* show on md+ screens */
+  }
+}
+
+/* Input container for desktop */
+.inputWrap {
+  position: relative;
+  flex: 1;
+}
+
+.icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: #6b7280;
+
+  svg {
+    height: 1.25rem;
+    width: 1.25rem;
+  }
+}
+
+.input {
+  width: 100%;
+  height: 3rem;
+  border-radius: 9999px 0 0 9999px;
+  padding-left: 3rem;
+  padding-right: 0.75rem;
+  font-size: 0.875rem;
+  color: #111827;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+
+  &::placeholder {
+    color: #6b7280;
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.12);
+  }
+}
+
+.submitBtn {
+  height: 3rem;
+  border-radius: 0 9999px 9999px 0;
+  background: #14b8a6;
+  border: none;
+  padding: 0 1rem;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  &:hover {
+    background: #0f9a8e;
+  }
+}
+
+.submitText {
+  display: inline-block;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: #fff;
+}
+
+.submitIcon {
+  display: none; /* desktop-only */
+}
+
+/* ------------------ Mobile search icon only ------------------ */
+.mobileIconWrap {
+  display: inline-flex; /* visible by default on mobile */
+  align-items: center;
+
+  @media (min-width: 768px) {
+    display: none; /* hide on desktop */
+  }
+}
+
+.iconButton {
+  padding: 0.5rem;
+  border-radius: 9999px;
+  background: transparent;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  &:hover {
+    background: #f8fafc;
+  }
+}
+
+.mobileSearchIcon {
+  height: 1.25rem;
+  width: 1.25rem;
+  color: #374151; /* slate-700 */
+}

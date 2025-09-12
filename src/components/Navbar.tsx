@@ -1,10 +1,9 @@
-// src/components/Navbar.tsx
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { SearchBar } from "@/components/Searchbar";
+import SearchBar from "@/components/Searchbar";
 import {
   NavigationMenu,
   NavigationMenuItem,
@@ -16,24 +15,17 @@ import { Menu as MenuIcon } from "lucide-react";
 import styles from "../styles/Navbar.module.scss";
 
 type NavbarProps = {
-  onToggleSidebar?: () => void; // mobile hamburger -> open/close sidebar
-  onToggleCollapse?: () => void; // desktop collapse toggle
-  collapsed?: boolean; // collapsed state for aria/title
+  onToggleSidebar?: () => void;
+  onToggleCollapse?: () => void;
+  collapsed?: boolean;
 };
 
-export default function Navbar({
-  onToggleSidebar,
-  onToggleCollapse,
-  collapsed,
-}: NavbarProps) {
+export default function Navbar({ onToggleSidebar, onToggleCollapse, collapsed }: NavbarProps) {
   const profileDropdownRef = useRef<HTMLDivElement | null>(null);
   const avatarBtnRef = useRef<HTMLButtonElement | null>(null);
-
   const [mobileProfileOpen, setMobileProfileOpen] = useState(false);
-
   const userName = "Adedeji";
 
-  // close profile dropdown on outside click (mobile)
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (
@@ -69,38 +61,21 @@ export default function Navbar({
             </Link>
           </div>
 
-          {/* Center: Search (hidden on small screens via CSS) */}
+          {/* Center: Search */}
           <div className={styles.center}>
-            <div className={styles.searchWrap}>
-              <SearchBar />
-            </div>
+            <SearchBar />
           </div>
 
-          {/* Right (desktop): docs, collapse toggle, notifications, profile menu */}
+          {/* Right (desktop only) */}
           <div className={styles.desktopRight}>
-            <a className={styles.docsLink} href="#">
-              Docs
-            </a>
+            <a className={styles.docsLink} href="#">Docs</a>
 
-            {/* Desktop collapse toggle */}
-            <button
-              aria-label="Toggle sidebar collapse"
-              className={styles.notifButton}
-              onClick={() => onToggleCollapse?.()}
-              title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-            >
-              {/* Reuse menu icon as compact toggle */}
-              <MenuIcon className={styles.iconSmall} />
-            </button>
-
-            {/* Notifications */}
             <button aria-label="Notifications" className={styles.notifButton} title="Notifications">
               <svg xmlns="http://www.w3.org/2000/svg" className={styles.iconSmall} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405C18.21 14.79 18 13.918 18 13V9a6 6 0 00-9.33-4.98M9 17h6m-6 0a3 3 0 006 0" />
               </svg>
             </button>
 
-            {/* Desktop profile menu (NavigationMenu from your UI components) */}
             <NavigationMenu>
               <NavigationMenuList>
                 <NavigationMenuItem>
@@ -111,15 +86,9 @@ export default function Navbar({
 
                   <NavigationMenuContent className={styles.navMenuContent}>
                     <ul className={styles.menuList}>
-                      <li>
-                        <Link href="/profile" className={styles.menuLink}>Profile</Link>
-                      </li>
-                      <li>
-                        <Link href="/settings" className={styles.menuLink}>Settings</Link>
-                      </li>
-                      <li>
-                        <button className={styles.menuLogout} onClick={() => alert("Sign out")}>Logout</button>
-                      </li>
+                      <li><Link href="/profile" className={styles.menuLink}>Profile</Link></li>
+                      <li><Link href="/settings" className={styles.menuLink}>Settings</Link></li>
+                      <li><button className={styles.menuLogout} onClick={() => alert("Sign out")}>Logout</button></li>
                     </ul>
                   </NavigationMenuContent>
                 </NavigationMenuItem>
@@ -127,8 +96,14 @@ export default function Navbar({
             </NavigationMenu>
           </div>
 
-          {/* Mobile: avatar-only button and small dropdown (separate from sidebar) */}
+          {/* Mobile: avatar + search icon */}
           <div className={styles.mobileWrap}>
+            {/* Search icon (mobile only, next to avatar) */}
+            <div className={styles.mobileSearchWrap}>
+              <SearchBar />
+            </div>
+
+            {/* Mobile avatar */}
             <button
               ref={avatarBtnRef}
               type="button"
